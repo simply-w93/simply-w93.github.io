@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@jamie.local Biolinks</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        :root {
+            /* Color Palette (Purple, Gray, Black) */
+            --color-primary: #8b5cf6;     /* Deep Purple Accent */
+            --color-secondary: #a78bfa;   /* Lighter Purple */
+            --color-bg-dark: #121212;     /* Almost black */
+            --color-card-main: #252525;   /* Dark gray for the main card */
+            --color-card-side: #3d3d3d;   /* Slightly lighter gray for side panels */
+            --color-text: #f0f0f0;        /* Light text */
+
+            /* Layout */
+            --border-radius: 10px;
+            --main-card-width: 350px;
+
+            /* Toggle variables */
+            --rain-opacity: 0;
+        }
+
+        /* --- TOGGLE HANDLERS --- */
+        .rain-enabled body {
+            --rain-opacity: 1;
+        }
+
+        /* --- GLOBAL & BACKGROUND STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--color-bg-dark);
+            color: var(--color-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden; 
+        }
+
+        .video-background {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden;
+        }
+
+        .video-background video {
+            min-width: 100%; min-height: 100%; width: auto; height: auto; position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%); object-fit: cover; filter: brightness(0.7); 
+        }
+
+        /* --- RAIN OVERLAY --- */
+        .rain-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000;
+            background: transparent; 
+            opacity: var(--rain-opacity); transition: opacity 1.5s ease;
+            box-shadow: inset 0 0 100px rgba(139, 92, 246, 0.1); 
+        }
+        
+        /* --- MAIN CENTERED CARD --- */
+        .main-card {
+            background-color: rgba(37, 37, 37, 0.9);
+            backdrop-filter: blur(5px);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 100%;
+            max-width: var(--main-card-width);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .profile-pic {
+            width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;
+            border: 3px solid var(--color-primary); box-shadow: 0 0 15px var(--color-primary);
+        }
+        
+        .name-container {
+            display: flex; justify-content: center; align-items: center; margin-bottom: 30px;
+        }
+        
+        .name {
+            font-size: 1.6em; font-weight: 700; color: var(--color-text); text-shadow: 0 0 5px var(--color-primary);
+            margin-right: 10px; 
+        }
+        
+        .info-button {
+            background: var(--color-primary); color: var(--color-bg-dark); border: none; width: 25px; height: 25px;
+            border-radius: 50%; font-size: 0.8em; font-weight: bold; cursor: pointer; transition: background-color 0.2s, transform 0.2s;
+            line-height: 1; display: flex; justify-content: center; align-items: center;
+        }
+
+        .info-button:hover {
+            background-color: var(--color-secondary); transform: scale(1.1);
+        }
+
+        /* --- LINKS --- */
+        .links-container {
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; 
+        }
+
+        .link-button {
+            display: block; background-color: var(--color-card-side); color: var(--color-text);
+            text-decoration: none; padding: 12px; border-radius: 6px; font-size: 1em; font-weight: 500;
+            transition: background-color 0.2s, color 0.2s, transform 0.2s; border: 1px solid rgba(139, 92, 246, 0.2);
+            text-align: left;
+        }
+
+        .link-button i { margin-right: 15px; width: 20px; text-align: center; color: var(--color-secondary); }
+
+        .link-button:hover {
+            background-color: #583a99; transform: translateY(-2px); color: var(--color-text);
+        }
+
+        /* --- BADGES SECTION --- */
+        .badges-container {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .badge {
+            position: relative; background-color: var(--color-card-side); padding: 10px; border-radius: 6px;
+            transition: background-color 0.2s; cursor: default; display: flex; justify-content: center; align-items: center;
+        }
+
+        .badge i {
+            font-size: 1.5em; color: var(--color-secondary);
+        }
+
+        /* Tooltip (Hover Text) */
+        .badge:hover { background-color: #583a99; }
+
+        .badge .tooltip {
+            visibility: hidden; background-color: var(--color-primary); color: var(--color-bg-dark);
+            text-align: center; border-radius: 6px; padding: 5px 8px; position: absolute; z-index: 20;
+            bottom: 120%; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 0.9em;
+            opacity: 0; transition: opacity 0.3s;
+        }
+
+        .badge:hover .tooltip { visibility: visible; opacity: 1; }
+        
+        /* --- ARROW TRIGGERS & SIDE POP-UPS --- */
+        .arrow-trigger {
+            position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px;
+            background-color: var(--color-primary); color: var(--color-bg-dark); border: none; border-radius: 50%;
+            cursor: pointer; font-size: 1.2em; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5); transition: background-color 0.2s, transform 0.2s; z-index: 15;
+        }
+        .arrow-trigger-left { left: -60px; }
+        .arrow-trigger-right { right: -60px; }
+        .arrow-trigger:hover { background-color: var(--color-secondary); transform: translateY(-50%) scale(1.1); }
+
+        .side-popup {
+            position: fixed; top: 0; height: 100vh; width: 300px; background-color: rgba(28, 28, 28, 0.95);
+            backdrop-filter: blur(8px); box-shadow: 0 0 30px rgba(0, 0, 0, 0.8); padding: 20px; overflow-y: auto;
+            z-index: 50; transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .popup-left { left: 0; transform: translateX(-100%); border-right: 4px solid var(--color-primary); }
+        .popup-right { right: 0; transform: translateX(100%); border-left: 4px solid var(--color-primary); }
+        .side-popup.open { transform: translateX(0); }
+        .popup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(139, 92, 246, 0.3); padding-bottom: 10px; }
+        .popup-header h3 { color: var(--color-secondary); font-weight: 600; }
+        .close-btn { background: none; border: none; color: var(--color-text); font-size: 1.5em; cursor: pointer; transition: color 0.2s; }
+        .close-btn:hover { color: var(--color-primary); }
+        .contact-item { margin-bottom: 15px; padding: 10px; background-color: var(--color-card-main); border-radius: 6px; border-left: 3px solid var(--color-primary); }
+        .contact-item i { color: var(--color-primary); margin-right: 10px; }
+        .contact-item span { display: block; font-size: 0.9em; color: var(--color-text); margin-top: 5px; font-family: monospace; word-break: break-all; }
+        .playlist-placeholder { min-height: 400px; background-color: var(--color-bg-dark); border-radius: 8px; display: flex; justify-content: center; align-items: center; text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.3); font-style: italic; }
+
+        /* --- ABOUT ME MODAL --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px); z-index: 1000; display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .modal-overlay.open { display: flex; opacity: 1; }
+        .about-modal {
+            background-color: var(--color-card-side); border-radius: var(--border-radius); width: 90%; max-width: 500px;
+            padding: 30px; box-shadow: 0 10px 50px rgba(0, 0, 0, 0.9); transform: translateY(-50px); transition: transform 0.3s;
+        }
+        .modal-overlay.open .about-modal { transform: translateY(0); }
+        .modal-content h3 { color: var(--color-primary); margin-bottom: 15px; border-bottom: 2px solid rgba(139, 92, 246, 0.4); padding-bottom: 5px; }
+        .modal-content p { line-height: 1.6; margin-bottom: 15px; }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .arrow-trigger { display: none; }
+            .side-popup { width: 100%; max-width: none; }
+            .badges-container { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+
+<body class="rain-enabled">
+
+    <div class="video-background">
+        <video loop muted autoplay poster="PLACEHOLDER_IMAGE.jpg">
+            <source src="https://motionbgs.com/media/1435/aesthetic-pastel-clouds.960x540.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <div class="rain-overlay"></div>
+
+
+    <div class="main-card">
+        
+        <button class="arrow-trigger arrow-trigger-left" onclick="togglePopup('playlist-popup')">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="arrow-trigger arrow-trigger-right" onclick="togglePopup('contact-popup')">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <img src="pfp.webp" alt="Profile Picture" class="profile-pic">
+
+        <div class="name-container">
+            <div class="name">@jamie.local</div>
+            <button class="info-button" onclick="toggleAboutModal()">?</button>
+        </div>
+
+        <div class="links-container">
+            <a href="https://discord.gg/QuBmfbZgwm" target="_blank" class="link-button">
+                <i class="fab fa-discord"></i> Discord (Ariza Projects)
+            </a>
+            <a href="https://mastodon.social/@jqm1e" target="_blank" class="link-button">
+                <i class="fa-solid fa-hashtag"></i> Mastodon
+            </a>
+            <a href="https://x.com/@x_dot_com_sucks" target="_blank" class="link-button">
+                <i class="fab fa-twitter"></i> Twitter / X
+            </a>
+            <a href="https://github.com/jamielocal" target="_blank" class="link-button">
+                <i class="fab fa-github"></i> GitHub Profile
+            </a>
+            <a href="jamielocal.github.io" target="_blank" class="link-button">
+                <i class="fas fa-link"></i> My Portfolio
+            </a>
+            <a href="https://namemc.com/profile/tiytion.1" target="_blank" class="link-button">
+                <i class="fas fa-code"></i> NameMC
+            </a>
+        </div>
+        
+        <div class="badges-container">
+            <div class="badge">
+                <i class="fas fa-bolt"></i>
+                <span class="tooltip">Specializing in Java and Much More!</span>
+            </div>
+            <div class="badge">
+                <i class="fas fa-trophy"></i>
+                <span class="tooltip">Contributed to over 25+ Projects!</span>
+            </div>
+            <div class="badge">
+                <i class="fas fa-heart"></i>
+                <span class="tooltip">Ran Huge Communities 20K+</span>
+            </div>
+            <div class="badge">
+                <i class="fas fa-laptop-code"></i>
+                <span class="tooltip">Active Developer</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="about-modal-overlay" class="modal-overlay" onclick="toggleAboutModal()">
+        <div class="about-modal" onclick="event.stopPropagation()">
+            <div class="popup-header">
+                <h3>❓ About Me</h3>
+                <button class="close-btn" onclick="toggleAboutModal()">&times;</button>
+            </div>
+            <div class="modal-content">
+                <p>
+                    Hey there! I'm Jamie, a passionate Developer / Designer based in Canada. 
+                    I focus on Python and Java Development, I also write video scripts in my freetime, along with much more. 
+                </p>
+                <p>
+                    I started Ariza Projects in 2023 with a friend and love connecting with people who share my interests. 
+                    I'm always working on new things, so check out my links below!
+                </p>
+                <p>
+                    Quick Note: Thanks for Checking me out!
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="playlist-popup" class="side-popup popup-left">
+        <div class="popup-header">
+            <h3>🎧 My Playlist (Old)</h3>
+            <button class="close-btn" onclick="togglePopup('playlist-popup')">&times;</button>
+        </div>
+        <div class="playlist-placeholder">
+            <p>
+                <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/6P96spXOQmsN5dplzE66ZD?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </p>
+        </div>
+    </div>
+
+    <div id="contact-popup" class="side-popup popup-right">
+        <div class="popup-header">
+            <h3>📬 Contact Me</h3>
+            <button class="close-btn" onclick="togglePopup('contact-popup')">&times;</button>
+        </div>
+        <p style="margin-bottom: 20px;">Feel free to reach out to me.</p>
+        <div class="contact-item">
+            <i class="fas fa-at"></i> Email
+            <span>jqm1e@proton.me</span>
+        </div>
+        <div class="contact-item">
+            <i class="fab fa-discord"></i> Discord User
+            <span>jamie.local</span>
+        </div>
+        <div class="contact-item">
+            <i class="fab fa-telegram-plane"></i> Telegram
+            <span>@wuuidontelegram</span>
+        </div>
+    </div>
+
+
+    <script>
+        function togglePopup(popupId) {
+            const popup = document.getElementById(popupId);
+            popup.classList.toggle('open');
+        }
+
+        function toggleAboutModal() {
+            const modal = document.getElementById('about-modal-overlay');
+            modal.classList.toggle('open');
+        }
+    </script>
+
+</body>
+</html>
