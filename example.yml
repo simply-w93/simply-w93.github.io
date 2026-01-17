@@ -42,11 +42,8 @@ items:
     is-permanent: true
     update-on-click: true
     actions:
-      -
-        type: 'player command'
-        commands:
-          - 'zmenu open zmenu:recipes'
-        command-in-chat: false
+      - type: NEXT_PAGE
+        
   btn-54:
     item:
       material: GLASS_PANE
@@ -92,4 +89,5 @@ items:
     slot: 44
     item:
       material: LIME_WOOL
+      name: "Next Page (Not Added)"
     page: 2
