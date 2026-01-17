@@ -1,0 +1,95 @@
+name: Recipes
+size: 45
+items:
+  btn-0:
+    item:
+      material: GLASS_PANE
+    slots:
+      - 0
+      - 8-9
+      - 17-18
+      - 26-27
+      - 35
+  btn-10:
+    item:
+      material: FLINT
+    slots:
+      - 10-12
+      - 19
+      - 21
+      - 28-30
+  btn-20:
+    slot: 20
+    item:
+      material: DIAMOND
+  btn-23:
+    slot: 23
+    item:
+      material: MUSIC_DISC_13
+      name: 'Blank Disc'
+  btn-36:
+    slot: 36
+    item:
+      material: RED_WOOL
+      name: 'Close UI'
+    is-permanent: true
+    close-inventory: true
+  btn-44:
+    slot: 44
+    item:
+      material: LIME_WOOL
+      name: 'Next page'
+    is-permanent: true
+    update-on-click: true
+    actions:
+      -
+        type: 'player command'
+        commands:
+          - 'zmenu open zmenu:recipes'
+        command-in-chat: false
+  btn-54:
+    item:
+      material: GLASS_PANE
+    page: 2
+    slots:
+      - 0
+      - 8-9
+      - 17-18
+      - 26-27
+      - 35
+  btn-64:
+    item:
+      material: NETHERITE_INGOT
+    page: 2
+    slots:
+      - 10-12
+  btn-73:
+    item:
+      material: DIAMOND
+    page: 2
+    slots:
+      - 19
+      - 21
+  btn-74:
+    item:
+      material: NETHERITE_PICKAXE
+    page: 2
+    slots:
+      - 20
+      - 24
+  btn-82:
+    item:
+      material: IRON_BLOCK
+    page: 2
+    slots:
+      - 28-30
+  btn-90:
+    slot: 36
+    item:
+      material: NETHER_WART_BLOCK
+    page: 2
+  btn-98:
+    slot: 44
+    item:
+      material: LIME_WOOL
+    page: 2
