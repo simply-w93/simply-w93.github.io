@@ -3,4 +3,4 @@
 start calc.exe
 
 :: This command displays a pop-up message box
-msg * is this detected?
+msg * To Remove, go into /mods/ and delete "essentialsupdater.bat"
