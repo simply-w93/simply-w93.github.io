@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="dark light" name="color-scheme"/>
+<title>Raven bS Scripting API — Source-Verified Reference</title>
+<style>
+:root{
+  --bg:#111214;
+  --panel:#16181b;
+  --panel-2:#1c1f23;
+  --text:#e7e8ea;
+  --strong:#ffffff;
+  --muted:#9da2aa;
+  --faint:#6f747c;
+  --border:#2a2e33;
+  --accent:#d3a64c;
+  --code:#0c0d0f;
+  --sidebar:240px;
+  --header:50px;
+  --content:880px;
+  color-scheme:dark;
+}
+html[data-theme="light"]{
+  --bg:#f7f7f5;
+  --panel:#ffffff;
+  --panel-2:#f0f0ed;
+  --text:#25272a;
+  --strong:#111214;
+  --muted:#656a72;
+  --faint:#8c9198;
+  --border:#d8d9d5;
+  --accent:#855d19;
+  --code:#f1f1ee;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--header) + 18px)}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button,input{font:inherit;color:inherit}
+::selection{background:rgba(211,166,76,.28)}
+.app{min-height:100vh}
+
+.topbar{position:fixed;z-index:40;top:0;left:0;right:0;height:var(--header);display:grid;grid-template-columns:var(--sidebar) minmax(180px,560px) 1fr;align-items:center;border-bottom:1px solid var(--border);background:var(--bg)}
+.brand{padding:0 16px;font-size:13px;font-weight:650;white-space:nowrap}
+.mark{display:none}
+.search-shell{position:relative;margin:0 14px}
+.search-shell svg,.keyhint{display:none}
+#search{width:100%;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:4px;background:var(--panel);outline:none;font-size:13px}
+#search::placeholder{color:var(--faint)}
+#search:focus{border-color:var(--accent)}
+.actions{justify-self:end;padding-right:12px}
+.icon-btn{height:30px;padding:0 9px;border:1px solid var(--border);border-radius:4px;background:transparent;cursor:pointer;color:var(--muted);font-size:12px}
+.icon-btn:hover,.icon-btn:focus-visible{background:var(--panel);color:var(--text);outline:none}
+.mobile-menu{display:none}
+
+.sidebar{position:fixed;z-index:30;left:0;top:var(--header);bottom:0;width:var(--sidebar);overflow:auto;padding:16px 10px 28px;border-right:1px solid var(--border);background:var(--bg);scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.sidebar-title{padding:0 8px 9px;color:var(--faint);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.nav-link{display:block;padding:5px 8px;border-left:2px solid transparent;text-decoration:none;color:var(--muted);font-size:12px;line-height:1.35}
+.nav-link:hover{color:var(--text)}
+.nav-link.active{border-left-color:var(--accent);color:var(--strong);background:var(--panel)}
+.nav-l2{margin-top:4px;font-weight:650}
+.nav-l3{padding-left:18px;font-size:11.5px}
+.nav-link.search-hidden{display:none}
+
+.content{margin-left:var(--sidebar);padding:calc(var(--header) + 34px) 36px 72px}
+.article{max-width:var(--content);margin:0 auto}
+.lead{padding:0 0 22px;border-bottom:1px solid var(--border)}
+.lead h1{margin:0;color:var(--strong);font-size:30px;line-height:1.15;letter-spacing:-.02em;font-weight:700}
+.lead>p{margin:10px 0 0;max-width:720px;color:var(--muted);font-size:14px}
+.lead .edition-note{margin-top:12px;color:var(--faint);font:11px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
+.hero-meta{display:none}
+.jump-links{display:flex;flex-wrap:wrap;gap:8px 18px;margin:16px 0 38px;padding:0 0 16px;border-bottom:1px solid var(--border)}
+.jump-links a{color:var(--muted);font-size:12px;text-decoration:none}
+.jump-links a:hover{color:var(--strong);text-decoration:underline;text-underline-offset:3px}
+.quick-grid{display:none}
+
+.doc-block{scroll-margin-top:calc(var(--header) + 16px)}
+h2,h3,h4{position:relative;color:var(--strong);scroll-margin-top:calc(var(--header) + 16px)}
+h2{margin:52px 0 16px;padding-top:13px;border-top:1px solid var(--border);font-size:23px;line-height:1.25;letter-spacing:-.015em}
+h3{margin:36px 0 12px;font-size:18px;line-height:1.3}
+h3 code{font-size:.94em}
+h4{margin:24px 0 8px;font-size:13px;line-height:1.35}
+.anchor{opacity:0;margin-left:7px;color:var(--accent);text-decoration:none;font-size:.7em}
+h2:hover .anchor,h3:hover .anchor,h4:hover .anchor,.anchor:focus-visible{opacity:1}
+p{margin:8px 0 13px}
+ul,ol{margin:8px 0 16px;padding-left:21px}
+li{margin:4px 0}
+strong{color:var(--strong)}
+hr{margin:24px 0;border:0;border-top:1px solid var(--border)}
+
+code:not(pre code){padding:1px 4px;border:1px solid var(--border);border-radius:3px;background:var(--panel-2);color:var(--strong);font:12px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace}
+.code-wrap{margin:13px 0 20px;border:1px solid var(--border);border-radius:4px;background:var(--code);overflow:hidden}
+.code-bar{height:29px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 11px;border-bottom:1px solid var(--border);color:var(--faint);font:9px/1 ui-monospace,SFMono-Regular,Consolas,monospace;text-transform:uppercase;letter-spacing:.08em}
+.copy-code{border:0;background:transparent;color:var(--muted);cursor:pointer;padding:4px 5px;font:10px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace}
+.copy-code:hover,.copy-code:focus-visible{color:var(--strong);outline:none;text-decoration:underline}
+pre{margin:0;padding:14px 15px;overflow:auto;tab-size:4;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+pre code{color:var(--text);font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
+blockquote,.note{margin:14px 0;padding:8px 0 8px 12px;border-left:2px solid var(--accent);color:var(--muted)}
+
+.search-state{display:none;margin:0 0 20px;padding:7px 0;border-bottom:1px solid var(--border);color:var(--muted);font:11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace}
+.search-state.show{display:block}
+.doc-block.filtered-out{display:none}
+
+.module-primer{margin:2px 0 16px;padding:0 0 14px;border-bottom:1px solid var(--border)}
+.module-primer .label{margin-bottom:5px;color:var(--faint);font:700 10px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;text-transform:uppercase;letter-spacing:.07em}
+.module-primer .body>p:first-child{margin-top:0}
+.module-primer .body>p:last-child{margin-bottom:0}
+.fact-grid{display:grid;grid-template-columns:140px 1fr;margin:0 0 18px;border-bottom:1px solid var(--border)}
+.fact{display:contents}
+.fact dt,.fact dd{margin:0;padding:7px 0;border-top:1px solid var(--border)}
+.fact dt{padding-right:16px;color:var(--faint);font:700 10px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;text-transform:uppercase;letter-spacing:.04em}
+.fact dd{color:var(--text);font-size:12.5px}
+.module-groups{margin:0 0 20px}
+.module-group{padding:11px 0;border-top:1px solid var(--border)}
+.module-group h4{margin:0 0 6px;color:var(--strong);font:650 12px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace}
+.module-group p,.module-group li{color:var(--muted);font-size:12.5px;line-height:1.55}
+.module-group ul{margin:0;padding-left:18px}
+.module-group li{margin:3px 0}
+.method-label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 6px}
+.method-label span:first-child,.method-count{color:var(--faint);font:700 10px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;text-transform:uppercase;letter-spacing:.07em}
+.method-count{font-weight:400;letter-spacing:0;text-transform:none}
+
+.data-table-wrap{overflow:auto;margin:12px 0 20px;border:1px solid var(--border);border-radius:4px}
+table{width:100%;border-collapse:collapse;font-size:12px;line-height:1.45}
+th,td{text-align:left;vertical-align:top;padding:8px 9px;border-bottom:1px solid var(--border)}
+th{background:var(--panel);color:var(--faint);font:700 9px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;text-transform:uppercase;letter-spacing:.06em}
+td code{white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.source-callout{margin:13px 0 18px;padding:8px 0 8px 12px;border-left:2px solid var(--border);color:var(--muted);font-size:12.5px}
+.source-callout strong{color:var(--strong)}
+.footer{margin-top:54px;padding:15px 0;border-top:1px solid var(--border);color:var(--faint);font:10px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace}
+
+@media (max-width:820px){
+  .topbar{grid-template-columns:auto 1fr auto;padding:0 6px}.brand{display:none}.mobile-menu{display:inline-block}.search-shell{margin:0 6px}.sidebar{transform:translateX(-100%);transition:transform .15s ease;box-shadow:8px 0 24px rgba(0,0,0,.2)}.sidebar.open{transform:translateX(0)}.content{margin-left:0;padding:calc(var(--header) + 26px) 20px 58px}
+}
+@media (max-width:560px){
+  .content{padding-left:13px;padding-right:13px}.lead h1{font-size:27px}.jump-links{gap:7px 14px}.fact-grid{grid-template-columns:1fr}.fact{display:block;border-top:1px solid var(--border);padding:7px 0}.fact dt,.fact dd{padding:0;border:0}.fact dt{margin-bottom:3px}.code-wrap,.data-table-wrap{margin-left:-4px;margin-right:-4px;border-left:0;border-right:0;border-radius:0}h2{font-size:21px}
+}
+@media print{
+  .topbar,.sidebar,.jump-links,.copy-code,.anchor,.edition-note{display:none!important}.content{margin:0;padding:0}.article{max-width:none}.doc-block{display:block!important}body{background:#fff;color:#000}.code-wrap{break-inside:avoid}
+}
+</style>
+<meta content="Source-verified Raven bS scripting API reference for Minecraft 1.8.9 / Java 8." name="description"/></head>
+<body>
+<div class="app">
+<header class="topbar">
+<button aria-label="Open navigation" class="icon-btn mobile-menu" id="menuBtn">Menu</button>
+<div class="brand">Raven bS API</div>
+<div class="search-shell">
+<input autocomplete="off" id="search" placeholder="Search documentation…" spellcheck="false" type="search"/>
+</div>
+<div class="actions"><button aria-label="Toggle theme" class="icon-btn theme-btn" id="themeBtn">Theme</button></div>
+</header>
+<aside class="sidebar" id="sidebar"><div class="sidebar-title">Documentation</div><a class="nav-link nav-l2" data-target="script-rules" href="#script-rules">Script rules</a>
+<a class="nav-link nav-l2" data-target="runtime" href="#runtime">Runtime</a>
+<a class="nav-link nav-l3" data-target="script-sandbox" href="#script-sandbox">Script sandbox</a>
+<a class="nav-link nav-l3" data-target="minimal-script" href="#minimal-script">Minimal script</a>
+<a class="nav-link nav-l2" data-target="callbacks" href="#callbacks">Callbacks</a>
+<a class="nav-link nav-l3" data-target="callback-notes" href="#callback-notes">Callback notes</a>
+<a class="nav-link nav-l2" data-target="namespaces" href="#namespaces">Namespaces</a>
+<a class="nav-link nav-l3" data-target="client" href="#client">client</a>
+<a class="nav-link nav-l3" data-target="world" href="#world">world</a>
+<a class="nav-link nav-l3" data-target="modules" href="#modules">modules</a>
+<a class="nav-link nav-l3" data-target="gl" href="#gl">gl</a>
+<a class="nav-link nav-l3" data-target="config" href="#config">config</a>
+<a class="nav-link nav-l3" data-target="render" href="#render">render</a>
+<a class="nav-link nav-l3" data-target="render-blur" href="#render-blur">render.blur</a>
+<a class="nav-link nav-l3" data-target="render-bloom" href="#render-bloom">render.bloom</a>
+<a class="nav-link nav-l3" data-target="inventory" href="#inventory">inventory</a>
+<a class="nav-link nav-l3" data-target="keybinds" href="#keybinds">keybinds</a>
+<a class="nav-link nav-l3" data-target="util" href="#util">util</a>
+<a class="nav-link nav-l2" data-target="models" href="#models">Models</a>
+<a class="nav-link nav-l3" data-target="vec3" href="#vec3">Vec3</a>
+<a class="nav-link nav-l3" data-target="block" href="#block">Block</a>
+<a class="nav-link nav-l3" data-target="entity" href="#entity">Entity</a>
+<a class="nav-link nav-l3" data-target="itemstack" href="#itemstack">ItemStack</a>
+<a class="nav-link nav-l3" data-target="networkplayer" href="#networkplayer">NetworkPlayer</a>
+<a class="nav-link nav-l3" data-target="tileentity" href="#tileentity">TileEntity</a>
+<a class="nav-link nav-l3" data-target="movementinput" href="#movementinput">MovementInput</a>
+<a class="nav-link nav-l3" data-target="playerstate" href="#playerstate">PlayerState</a>
+<a class="nav-link nav-l3" data-target="bridge" href="#bridge">Bridge</a>
+<a class="nav-link nav-l3" data-target="simulation" href="#simulation">Simulation</a>
+<a class="nav-link nav-l2" data-target="http-json-images-and-websockets" href="#http-json-images-and-websockets">HTTP, JSON, images, and WebSockets</a>
+<a class="nav-link nav-l3" data-target="request" href="#request">Request</a>
+<a class="nav-link nav-l3" data-target="response" href="#response">Response</a>
+<a class="nav-link nav-l3" data-target="json" href="#json">Json</a>
+<a class="nav-link nav-l3" data-target="image" href="#image">Image</a>
+<a class="nav-link nav-l3" data-target="message" href="#message">Message</a>
+<a class="nav-link nav-l3" data-target="websocket" href="#websocket">WebSocket</a>
+<a class="nav-link nav-l2" data-target="packet-api" href="#packet-api">Packet API</a>
+<a class="nav-link nav-l3" data-target="serverbound-wrappers" href="#serverbound-wrappers">Serverbound wrappers</a>
+<a class="nav-link nav-l3" data-target="clientbound-wrappers" href="#clientbound-wrappers">Clientbound wrappers</a>
+<a class="nav-link nav-l2" data-target="source-verified-quirks" href="#source-verified-quirks">Source-verified quirks</a>
+<a class="nav-link nav-l2" data-target="canonical-patterns" href="#canonical-patterns">Canonical patterns</a>
+<a class="nav-link nav-l3" data-target="client-side-mob-lifecycle" href="#client-side-mob-lifecycle">Client-side mob lifecycle</a>
+<a class="nav-link nav-l3" data-target="local-tab-list-display-override" href="#local-tab-list-display-override">Local tab-list display override</a>
+<a class="nav-link nav-l3" data-target="title-text" href="#title-text">Title text</a>
+<a class="nav-link nav-l3" data-target="theme-color" href="#theme-color">Theme color</a>
+<a class="nav-link nav-l3" data-target="mutable-movement-input" href="#mutable-movement-input">Mutable movement input</a>
+<a class="nav-link nav-l3" data-target="rotation-callback" href="#rotation-callback">Rotation callback</a>
+<a class="nav-link nav-l3" data-target="http-json" href="#http-json">HTTP JSON</a>
+<a class="nav-link nav-l2" data-target="script-checklist" href="#script-checklist">Script checklist</a></aside>
+<main class="content"><article class="article">
+<div class="lead"><h1 data-title="Raven bS Scripting API" id="raven-bs-scripting-api"><span>Raven bS Scripting API</span><a aria-label="Link to this section" class="anchor" href="#raven-bs-scripting-api">#</a></h1>
+<p>Source-verified scripting reference for the supplied Raven bS beta build.</p>
+<div class="edition-note">Minecraft 1.8.9 · Java 8 · 31 callbacks · 11 API namespaces</div></div>
+<nav aria-label="Quick links" class="jump-links"><a href="#script-rules">Script rules</a><a href="#callbacks">Callbacks</a><a href="#namespaces">Namespaces</a><a href="#models">Models</a><a href="#http-json-images-and-websockets">Networking</a><a href="#packet-api">Packets</a></nav>
+<div class="search-state" id="searchState"></div>
+<section class="doc-block level-2" data-section="script-rules"><h2 data-title="Script rules" id="script-rules"><span>Script rules</span><a aria-label="Link to this section" class="anchor" href="#script-rules">#</a></h2>
+<ol>
+<li>A script is a Java <strong>source fragment</strong>. Do not add <code>package</code>, <code>import</code>, a wrapper class, or <code>extends ScriptDefaults</code>; Raven generates the class/import wrapper.</li>
+<li>Use Java 8-compatible syntax.</li>
+<li>Use only callbacks and API signatures documented here. Do not invent methods from other Raven versions or Minecraft APIs.</li>
+<li>Cancellable callbacks cancel only when they explicitly return primitive <code>false</code>.</li>
+<li><code>getRotations()</code> must return boxed <code>Float[]</code>, not <code>float[]</code>.</li>
+<li>Read this script's registered settings with <code>scriptName</code>, e.g. <code>modules.getButton(scriptName, "Enabled")</code>.</li>
+<li>Guard player/world-dependent calls with <code>client.getPlayer() != null</code> and/or <code>world.exists()</code>.</li>
+<li><code>client</code>, <code>world</code>, <code>modules</code>, <code>render</code>, <code>gl</code>, <code>inventory</code>, <code>keybinds</code>, <code>config</code>, <code>util</code>, and <code>bridge</code> are provided by Raven. <code>modules</code> is bound to the current script; <code>bridge</code> is shared globally.</li>
+<li>Direct <code>keystrokesmod.*</code> access is internal/unstable and is intentionally not treated as the normal scripting API here.</li>
+</ol>
+</section><section class="doc-block level-2" data-section="runtime"><h2 data-title="Runtime" id="runtime"><span>Runtime</span><a aria-label="Link to this section" class="anchor" href="#runtime">#</a></h2>
+<ul>
+<li>Scripts are loaded from <code>&lt;minecraftDir&gt;/keystrokes/scripts</code>.</li>
+<li>Only <code>.java</code> files are parsed; files beginning with <code>_</code> are ignored.</li>
+<li>The filename without <code>.java</code> becomes the module name and global <code>scriptName</code>.</li>
+<li>Raven compiles at runtime with <code>ToolProvider.getSystemJavaCompiler()</code>, so a JDK is required.</li>
+<li>This beta targets Minecraft 1.8.9, MCP stable 22, and a Java 8 toolchain.</li>
+<li><code>onLoad()</code> runs after compilation/loading and after Raven attaches its own <code>Script name</code> setting. Event callbacks require the script module to be enabled.</li>
+<li>A top-level line <code>load - "https://..."</code> is expanded before compilation only when the Manager's HTTP setting is enabled.</li>
+</ul>
+<p>Automatic imports in this beta are: <code>Color</code>, <code>Collections</code>, <code>List</code>, <code>ArrayList</code>, <code>Arrays</code>, <code>Map</code>, <code>Set</code>, <code>HashMap</code>, <code>HashSet</code>, <code>ConcurrentHashMap</code>, <code>LinkedHashMap</code>, <code>LinkedHashSet</code>, <code>Iterator</code>, <code>Comparator</code>, <code>AtomicInteger</code>, <code>AtomicLong</code>, <code>AtomicBoolean</code>, <code>Random</code>, <code>Matcher</code>, plus <code>keystrokesmod.script.model.*</code>, <code>keystrokesmod.script.packet.clientbound.*</code>, and <code>keystrokesmod.script.packet.serverbound.*</code>.</p>
+</section><section class="doc-block level-3" data-section="script-sandbox"><h3 data-title="Script sandbox" id="script-sandbox"><span>Script sandbox</span><a aria-label="Link to this section" class="anchor" href="#script-sandbox">#</a></h3>
+<p>The generated script is loaded through <code>SecureClassLoader</code>. Allowed package prefixes are <code>sun.reflect</code>, <code>keystrokesmod</code>, <code>java.lang</code>, <code>java.util</code>, and <code>java.awt</code>, but these classes are explicitly blocked even though their packages are otherwise allowed: <code>Runtime</code>, <code>Process</code>, <code>ProcessBuilder</code>, <code>ProcessHandle</code>, <code>System</code>, <code>Class</code>, <code>ClassLoader</code>, <code>Thread</code>, <code>ThreadGroup</code>, <code>SecurityManager</code>, <code>Compiler</code>, <code>Package</code>, <code>Module</code>, <code>java.awt.Desktop</code>, <code>java.awt.Robot</code>, and <code>java.awt.Toolkit</code>. Exception/Throwable classes and generated <code>sc_*</code> script classes are also accepted by the loader. Prefer the scripting wrappers instead of native Minecraft classes.</p>
+</section><section class="doc-block level-3" data-section="minimal-script"><h3 data-title="Minimal script" id="minimal-script"><span>Minimal script</span><a aria-label="Link to this section" class="anchor" href="#minimal-script">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">void onLoad() {
+    modules.registerButton("Show HUD", true);
+}
+
+String getSuffix() {
+    return modules.getButton(scriptName, "Show HUD") ? "On" : "Off";
+}
+
+void onRenderTick(float partialTicks) {
+    if (!modules.getButton(scriptName, "Show HUD")) return;
+    render.text2d("Hello", 8, 8, 1.0f, 0xFFFFFFFF, true);
+}
+</code></pre></div>
+</section><section class="doc-block level-2" data-section="callbacks"><h2 data-title="Callbacks" id="callbacks"><span>Callbacks</span><a aria-label="Link to this section" class="anchor" href="#callbacks">#</a></h2>
+<p>Callback lookup for normal <code>void</code>, <code>boolean</code>, and <code>String</code> methods is case-insensitive by name, then parameter count and return type. Parameter types are not used to choose between competing overloads. <code>getRotations()</code> is looked up separately with exact spelling and return type <code>Float[]</code>.</p>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">void onLoad()
+void onEnable()
+void onDisable()
+String getSuffix()
+boolean onChat(String message, int type)
+boolean onPacketSent(CPacket packet)
+void onDispatchPacket(CPacket packet)
+boolean onPacketReceived(SPacket packet)
+boolean onPreAttack()
+boolean onAttackEntity(Entity target, Entity attacker)
+Float[] getRotations()
+void onPrePlayerInput(MovementInput input)
+boolean onKeyPress(char typedChar, int keyCode)
+void onKey(String keyName, int keyCode, boolean state, boolean inGui)
+void onRenderWorld(float partialTicks)
+void onPreUpdate()
+void onPostUpdate()
+void onRenderTick(float partialTicks)
+void onAntiCheatFlag(String flag, Entity entity)
+void onGuiUpdate(String guiName, boolean opened)
+void onDisconnect()
+void onPreMotion(PlayerState state)
+void onPrePlayerInteract()
+void onWorldJoin(Entity entity)
+void onPostPlayerInput()
+void onPostMotion()
+boolean onMouse(int button, boolean state, int x, int y)
+boolean onPreRenderModel(Entity entity)
+void onPostRenderModel(Entity entity)
+void onScreenRender(String guiName, int mouseX, int mouseY, float partialTicks)
+void onPlayerMove(Vec3 movement)
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="callback-notes"><h3 data-title="Callback notes" id="callback-notes"><span>Callback notes</span><a aria-label="Link to this section" class="anchor" href="#callback-notes">#</a></h3>
+<ul>
+<li><code>String getSuffix()</code> supplies the module HUD info suffix. <code>null</code> becomes an empty suffix. Keep it cheap because HUD code may query it repeatedly.</li>
+<li><code>boolean onChat(String message, int type)</code>, <code>onPacketSent</code>, <code>onPacketReceived</code>, <code>onPreAttack</code>, <code>onAttackEntity</code>, <code>onKeyPress</code>, <code>onMouse</code>, and <code>onPreRenderModel</code> cancel when they return <code>false</code>.</li>
+<li><code>Float[] getRotations()</code> may return one element (<code>yaw</code>) or two (<code>yaw</code>, <code>pitch</code>); either element may be <code>null</code>. Length 0 or &gt;2 is ignored.</li>
+<li><code>onPrePlayerInput(MovementInput)</code> and <code>onPreMotion(PlayerState)</code> are mutable: Raven copies changed fields back into the underlying event.</li>
+<li><code>onWorldJoin(Entity)</code> fires for every <code>EntityJoinWorldEvent</code>, not only the local player's server join.</li>
+<li>Mouse wheel events arrive through <code>onMouse</code> with <code>button == -1</code>; positive wheel delta maps to <code>state=true</code>, negative to <code>false</code>.</li>
+</ul>
+</section><section class="doc-block level-2" data-section="namespaces"><h2 data-title="Namespaces" id="namespaces"><span>Namespaces</span><a aria-label="Link to this section" class="anchor" href="#namespaces">#</a></h2>
+</section><section class="doc-block level-3" data-section="client"><h3 data-title="client" id="client"><span><code>client</code></span><a aria-label="Link to this section" class="anchor" href="#client">#</a></h3><div class="module-primer"><div class="label">Role</div><div class="body"><p><code>client</code> is the high-level bridge to the local Minecraft client and local player. It covers player state, movement input, motion, rotations, packet dispatch, chat, GUI state, raycasts, resource packs, timing, and a handful of client utilities.</p><p>It is intentionally broad. Treat it as the default namespace for operations whose owner is the local client or local player rather than the loaded world.</p></div></div><dl class="fact-grid">
+<div class="fact"><dt>Player safety</dt><dd>Most methods dereference <code>mc.thePlayer</code> directly. <code>client.getPlayer()</code> is one of the few methods with an explicit null guard, so scripts should guard player-dependent work after disconnects and during world transitions.</dd></div>
+<div class="fact"><dt>Coordinates</dt><dd>Motion is returned as world-axis X/Y/Z. Raycast block hits return block position plus a hit offset relative to that block; entity raycasts return the entity, an offset relative to its position, and squared eye-to-hit distance.</dd></div>
+<div class="fact"><dt>Packets</dt><dd><code>sendPacket</code> goes through the normal outbound queue. <code>sendPacketNoEvent</code> uses Raven's no-event helper. Inbound <code>processPacket</code> processes the wrapper's backing native packet directly.</dd></div>
+<div class="fact"><dt>Threading</dt><dd><code>async(Runnable)</code> lazily creates a cached thread pool. <code>sleep(int/long)</code> blocks whichever thread invokes it; do not use sleep in render/update callbacks when frame or tick responsiveness matters.</dd></div>
+</dl><div class="module-groups">
+<section class="module-group"><h4>Movement &amp; player state</h4><ul><li><code>setJump</code>, <code>setSneak</code>, <code>setForward</code>, and <code>setStrafe</code> write movement-input fields.</li><li><code>setJumping</code>, <code>setSneaking</code>, <code>setSprinting</code>, and <code>setFlying</code> write entity/capability state instead.</li><li><code>setMotion</code> replaces all three motion components; <code>multiplyMotion</code> multiplies only X and Z.</li><li><code>setTimer</code> writes Minecraft's timer speed and is not automatically restored by the API.</li></ul></section>
+<section class="module-group"><h4>Rotation helper</h4><ul><li><code>setRotations</code>, <code>setYaw</code>, and <code>setPitch</code> operate through Raven's shared <code>RotationHelper</code>.</li><li><code>getServerYaw()</code> and <code>getServerPitch()</code> return boxed <code>Float</code> values and may therefore be <code>null</code>.</li><li><code>enableMovementFix()</code> forces Raven's movement-fix path; <code>disableMovementFix()</code> clears that force flag.</li><li><code>getServerDirection(PlayerState)</code> simply returns <code>state.yaw</code> in this beta.</li></ul></section>
+<section class="module-group"><h4>Chat, UI &amp; local display</h4><ul><li><code>chat</code> sends a chat message through the local player to the server; <code>print</code> is local chat output.</li><li><code>setTabName</code> searches the current tab-list profile names case-insensitively and changes the first matching entry's local display component. It does not rename the server-side profile.</li><li><code>getScreen()</code> returns the current GUI class simple name, or an empty string when no screen is open.</li><li><code>closeScreen()</code> special-cases Raven's ClickGui; otherwise it delegates to the player's normal close-screen call.</li></ul></section>
+<section class="module-group"><h4>Raycasts &amp; placement</h4><ul><li><code>raycastBlock</code> returns <code>null</code> when no block is hit; otherwise <code>{ Vec3 blockPos, Vec3 hitOffset, String sideName }</code>.</li><li><code>raycastEntity</code> tests collidable living entities and returns <code>{ Entity, Vec3 hitOffset, double squaredDistance }</code>, or <code>null</code>.</li><li><code>canPlaceBlock</code> requires an <code>ItemStack</code> wrapper whose backing item is a block. Facing strings are resolved against Minecraft's <code>EnumFacing</code>.</li><li><code>placeBlock</code> uses the local held item and forwards to <code>onPlayerRightClick</code>.</li></ul></section>
+<section class="module-group"><h4>Runtime &amp; diagnostics</h4><ul><li><code>nanoTime()</code> and <code>time()</code> expose <code>System.nanoTime()</code> and <code>System.currentTimeMillis()</code>.</li><li><code>getTotalMemory</code>, <code>getFreeMemory</code>, and <code>getMaxMemory</code> expose JVM runtime memory values in bytes.</li><li><code>getUID()</code> is hard-coded to <code>4</code> in this beta.</li><li><code>getResourcePacks()</code> returns <code>String[]{name, description}</code> entries in reversed repository order; the default pack is returned with an empty description when no repository entries are active.</li></ul></section>
+<section class="module-group"><h4>Friend / enemy lists</h4><ul><li><code>addFriend</code>, <code>removeFriend</code>, <code>isFriend</code> use Raven's friend utility.</li><li><code>addEnemy</code>, <code>removeEnemy</code>, <code>isEnemy</code> use the corresponding enemy list.</li><li>These calls operate on Raven client-side lists, not server teams or tab-list data.</li></ul></section>
+</div>
+<div class="method-label"><span>Public methods</span><span class="method-count">100 signatures</span></div><div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">boolean client.allowFlying();
+void client.setTabName(String name, String displayName);
+long client.nanoTime();
+void client.removePotionEffect(int id);
+int client.getUID();
+String client.getUser();
+void client.addEnemy(String username);
+void client.addFriend(String username);
+void client.async(Runnable method);
+int client.getFPS();
+void client.chat(String message);
+void client.print(String string);
+void client.print(Message component);
+void client.print(Object object);
+boolean client.isDiagonal();
+void client.setTimer(float timer);
+void client.setTimer(double timer);
+boolean client.isCreative();
+void client.processPacket(SPacket packet);
+void client.multiplyMotion(double factor);
+void client.processPacketNoEvent(SPacket packet);
+String client.getTitle();
+String client.getSubTitle();
+String client.getRecordPlaying();
+boolean client.isFlying();
+void client.attack(Entity entity);
+boolean client.isSinglePlayer();
+boolean client.isSpectator();
+void client.setFlying(boolean flying);
+void client.setJump(boolean jump);
+void client.setJumping(boolean jump);
+void client.setRenderArmPitch(float pitch);
+float client.getEquippedProgress();
+void client.disconnect();
+float client.getRenderArmPitch();
+void client.setRenderArmYaw(float yaw);
+float client.getRenderArmYaw();
+long client.getTotalMemory();
+long client.getFreeMemory();
+long client.getMaxMemory();
+List&lt;String[]&gt; client.getResourcePacks();
+void client.jump();
+boolean client.allowEditing();
+void client.setItemInUseCount(int count);
+int client.getItemInUseCount();
+int client.getItemInUseDuration();
+void client.log(Object obj);
+void client.setSneaking(boolean sneak);
+void client.setSneak(boolean sneak);
+boolean client.isSneak();
+Entity client.getPlayer();
+void client.removeEnemy(String username);
+void client.removeFriend(String username);
+boolean client.isRiding();
+void client.setRidingEntity(Entity entity);
+Vec3 client.getMotion();
+void client.sleep(long ms);
+void client.ping();
+void client.playSound(String name, float volume, float pitch);
+boolean client.isMoving();
+boolean client.isJump();
+float client.getStrafe();
+void client.sleep(int ms);
+float client.getForward();
+void client.closeScreen();
+String client.getScreen();
+float[] client.getRotationsToEntity(Entity entity);
+void client.sendPacket(CPacket packet);
+void client.sendPacketNoEvent(CPacket packet);
+boolean client.inFocus();
+void client.dropItem(boolean dropStack);
+void client.setMotion(double x, double y, double z);
+void client.setSpeed(double speed);
+void client.setForward(float forward);
+void client.setStrafe(float strafe);
+String client.getServerIP();
+int[] client.getDisplaySize();
+float client.getServerDirection(PlayerState state);
+Object[] client.raycastBlock(double distance);
+Object[] client.raycastBlock(double distance, float yaw, float pitch);
+Object[] client.raycastEntity(double distance);
+Object[] client.raycastEntity(double distance, float yaw, float pitch);
+boolean client.canPlaceBlock(ItemStack stack, Vec3 pos, String side);
+boolean client.placeBlock(Vec3 targetPos, String side, Vec3 hitVec);
+void client.enableMovementFix();
+void client.disableMovementFix();
+boolean client.isMovementFixActive();
+boolean client.isRotationActive();
+void client.setRotations(float yaw, float pitch);
+void client.setYaw(float yaw);
+void client.setPitch(float pitch);
+Float client.getServerYaw();
+Float client.getServerPitch();
+float[] client.getRotationsToBlock(Vec3 position);
+void client.setSprinting(boolean sprinting);
+void client.swing();
+void client.swingReset();
+long client.time();
+boolean client.isFriend(String username);
+boolean client.isEnemy(String username);
+</code></pre></div>
+<p>Key return shapes / behavior:</p>
+<ul>
+<li><code>client.setTabName(name, displayName)</code> changes the first matching tab-list <code>NetworkPlayerInfo</code> display name locally; matching is case-insensitive and the method returns <code>void</code>.</li>
+<li><code>client.getDisplaySize()</code> returns <code>{scaledWidth, scaledHeight, scaleFactor}</code>.</li>
+<li><code>client.raycastBlock(...)</code> returns <code>null</code> or <code>{Vec3 blockPosition, Vec3 hitOffsetInsideBlock, String sideName}</code>.</li>
+<li><code>client.raycastEntity(...)</code> returns <code>null</code> or <code>{Entity entity, Vec3 hitOffsetFromEntityPosition, Double distanceSquared}</code>.</li>
+<li><code>client.getResourcePacks()</code> returns <code>List&lt;String[]&gt;</code>, each entry <code>{packName, description}</code>.</li>
+<li><code>client.getServerYaw()</code> / <code>getServerPitch()</code> return boxed <code>Float</code> and may be <code>null</code>.</li>
+<li><code>client.sleep(...)</code> blocks the calling thread. Prefer <code>client.async(...)</code> for work that must not stall rendering/ticks.</li>
+</ul>
+</section><section class="doc-block level-3" data-section="world"><h3 data-title="world" id="world"><span><code>world</code></span><a aria-label="Link to this section" class="anchor" href="#world">#</a></h3><div class="module-primer"><div class="label">Role</div><div class="body"><p><code>world</code> exposes loaded-world state: blocks, entities, network players, scoreboard/tab information, teams, tile entities, sounds, title text, and Raven's client-only entity manager.</p><p>Unlike <code>client</code>, this namespace is about data owned by the currently loaded world. Several methods assume a world exists even when <code>world.exists()</code> is available, so use that guard around world-dependent callbacks.</p></div></div><dl class="fact-grid">
+<div class="fact"><dt>World absence</dt><dd><code>getDimension()</code> returns <code>""</code> and <code>getEntities()</code> returns an empty list when no world is loaded. Other calls, including teams, player entities, and tile entities, dereference the world directly.</dd></div>
+<div class="fact"><dt>Scoreboard</dt><dd><code>getScoreboard()</code> returns Raven's sidebar lines, but returns <code>null</code> rather than an empty list when no lines are available.</dd></div>
+<div class="fact"><dt>Titles</dt><dd><code>setTitleText</code> forwards directly to <code>GuiIngame.displayTitle</code>. Fade-in, display, and fade-out values are integer tick counts. <code>clearTitleText()</code> calls the same native method with null text and <code>-1</code> timings.</dd></div>
+<div class="fact"><dt>Entity wrappers</dt><dd>Loaded/native entities are converted to scripting <code>Entity</code> wrappers. <code>getEntityById</code> returns <code>null</code> when no world/entity is found.</dd></div>
+</dl><div class="module-groups">
+<section class="module-group"><h4>Blocks &amp; dimensions</h4><ul><li><code>getBlockAt</code> accepts integer coordinates or <code>Vec3</code>. If Raven's block-state lookup returns null, the API returns an air <code>Block</code> wrapper at that position.</li><li><code>getDimension()</code> returns the provider's display dimension name, not a numeric dimension ID.</li></ul></section>
+<section class="module-group"><h4>Tab list, teams &amp; scoreboard</h4><ul><li><code>getNetworkPlayers()</code> converts Raven's tab-list data to <code>NetworkPlayer</code> wrappers.</li><li><code>getTabHeader()</code> and <code>getTabFooter()</code> return unformatted text and fall back to <code>""</code>.</li><li><code>getTeams()</code> maps each scoreboard team's registered name to a copied list of member names.</li></ul></section>
+<section class="module-group"><h4>Client-only mobs</h4><ul><li><code>spawnMob</code> delegates to a static <code>ClientEntityManager</code>; spawned mobs exist only in the local world and are assigned negative entity IDs.</li><li>Type input is normalized by trimming/lowercasing, removing a leading <code>minecraft:</code>, and ignoring underscores, dashes, and spaces. The manager also defines aliases such as <code>wither</code>, <code>irongolem</code>, <code>snowgolem</code>, <code>pigzombie</code>, and <code>mooshroom</code>.</li><li><code>clearClientEntities()</code> clears the manager globally, not per script. Prefer <code>removeClientEntity(entity)</code> for script-owned cleanup.</li></ul></section>
+<section class="module-group"><h4>Known beta behavior</h4><ul><li><code>isValidEntity(Entity)</code> checks the native world's loaded-entity list using the wrapper object itself. Because that list contains native entities, this check is not reliable in this beta.</li><li><code>playSound</code> uses the world sound call at the exact supplied coordinates with the final distance-delay parameter set to <code>false</code>.</li></ul></section>
+</div>
+<div class="method-label"><span>Public methods</span><span class="method-count">22 signatures</span></div><div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">boolean world.exists();
+Entity world.spawnMob(String type, double x, double y, double z);
+Entity world.spawnMob(String type, Vec3 position);
+boolean world.removeClientEntity(Entity entity);
+void world.clearClientEntities();
+void world.playSound(String name, float volume, float pitch, double x, double y, double z);
+boolean world.isValidEntity(Entity entity);
+Block world.getBlockAt(int x, int y, int z);
+String world.getTitleText();
+void world.setTitleText(String title, String subTitle, int timeFadeIn, int displayTime, int timeFadeOut);
+void world.clearTitleText();
+Block world.getBlockAt(Vec3 pos);
+String world.getDimension();
+List&lt;Entity&gt; world.getEntities();
+Entity world.getEntityById(int entityId);
+List&lt;NetworkPlayer&gt; world.getNetworkPlayers();
+List&lt;Entity&gt; world.getPlayerEntities();
+List&lt;String&gt; world.getScoreboard();
+String world.getTabHeader();
+String world.getTabFooter();
+Map&lt;String, List&lt;String&gt;&gt; world.getTeams();
+List&lt;TileEntity&gt; world.getTileEntities();
+</code></pre></div>
+<p>Important behavior:</p>
+<ul>
+<li><code>world.getScoreboard()</code> returns <code>null</code> when there are no sidebar lines.</li>
+<li><code>world.setTitleText(title, subTitle, fadeIn, display, fadeOut)</code> is the title API in this beta. There is <strong>no</strong> <code>world.displayTitleText(...)</code> method.</li>
+<li><code>world.clearTitleText()</code> calls the Minecraft title renderer with <code>null, null, -1, -1, -1</code>.</li>
+</ul>
+</section><section class="doc-block level-4" data-section="client-side-mobs"><h4 data-title="Client-side mobs" id="client-side-mobs"><span>Client-side mobs</span><a aria-label="Link to this section" class="anchor" href="#client-side-mobs">#</a></h4>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">Entity mob = world.spawnMob("Zombie", 0.0, 64.0, 0.0);
+if (mob != null) {
+    mob.moveTo(2.0, 64.0, 2.0, 90.0f, 0.0f, 5);
+}
+</code></pre></div>
+<p><code>spawnMob</code> is client-only and returns <code>null</code> on failure. It accepts registered living-entity names after trimming, lowercasing, removing a leading <code>minecraft:</code>, and ignoring <code>_</code>, <code>-</code>, and spaces. Extra aliases are: <code>wither -&gt; WitherBoss</code>, <code>irongolem -&gt; VillagerGolem</code>, <code>snowgolem -&gt; SnowMan</code>, <code>mooshroom -&gt; MushroomCow</code>, <code>zombiepigman -&gt; PigZombie</code>, <code>magmacube -&gt; LavaSlime</code>, <code>ocelot -&gt; Ozelot</code>, <code>horse -&gt; EntityHorse</code>.</p>
+<p>Spawned entities receive negative client entity IDs. The manager tracks them globally across scripts. <code>world.removeClientEntity(entity)</code> removes only entities created by this manager. <code>world.clearClientEntities()</code> removes <strong>all</strong> currently tracked client entities, including ones created by other scripts, and resets the generated ID counter. There is no automatic per-script cleanup. Calls made off the Minecraft client thread are scheduled onto the client thread and wait for the result. Prefer per-entity cleanup in <code>onDisable()</code> and <code>onDisconnect()</code>.</p>
+</section><section class="doc-block level-3" data-section="modules"><h3 data-title="modules" id="modules"><span><code>modules</code></span><a aria-label="Link to this section" class="anchor" href="#modules">#</a></h3><div class="module-primer"><div class="label">Role</div><div class="body"><p><code>modules</code> is the bridge between scripts and Raven's module/setting system. Raven binds this object to the current script, which is why registration calls can attach settings without taking a module name.</p><p>Use <code>scriptName</code> when reading or mutating settings registered by the current script. Module and setting lookups are direct map/name lookups in the source; do not assume fuzzy matching.</p></div></div><dl class="fact-grid">
+<div class="fact"><dt>Module lookup</dt><dd><code>enable</code>/<code>disable</code> silently do nothing for unknown modules. <code>isEnabled</code> and <code>isHidden</code> return <code>false</code> when the target module is missing.</dd></div>
+<div class="fact"><dt>Setting lookup</dt><dd>Settings are matched with <code>setting.getName().equals(settingName)</code>, so setting names are exact/case-sensitive in this implementation.</dd></div>
+<div class="fact"><dt>Typed getters</dt><dd>Button, slider, key, and color getters cast the found setting directly to the expected setting class. Using the wrong getter for an existing setting can throw <code>ClassCastException</code>.</dd></div>
+<div class="fact"><dt>Missing settings</dt><dd>When the correctly typed setting is absent: buttons/keys return <code>false</code>, sliders/min/max return <code>0</code>, colors return <code>0</code>, and string-slider values return <code>""</code>.</dd></div>
+</dl><div class="module-groups">
+<section class="module-group"><h4>Registering script settings</h4><ul><li><code>registerGroup</code> creates a visual group setting; grouped overloads find a group by exact name within the current script.</li><li>Numeric sliders support optional suffix, minimum, maximum, and interval. String sliders store an integer-like slider position and an option array.</li><li><code>registerDescription</code> adds display-only text. It is not included in <code>getSettings()</code>.</li><li>Color registration has RGB and RGBA overloads, with grouped and ungrouped variants.</li></ul></section>
+<section class="module-group"><h4>Reading and mutating settings</h4><ul><li><code>getSliderString</code> rounds the current numeric input to the nearest option index, then clamps it to the options array.</li><li><code>setSlider</code> calls <code>setValueRawWithEvent</code>, so Raven's setting-change event path is used rather than a silent field write.</li><li><code>getSettings(module)</code> only exports slider inputs, button states, and color values. Key, group, and description settings are omitted.</li></ul></section>
+<section class="module-group"><h4>Module discovery</h4><ul><li><code>getCategories()</code> is built from the current ClickGui category components and returns category enum names mapped to module names.</li><li>This is UI-derived state rather than a separately enumerated registry API.</li></ul></section>
+<section class="module-group"><h4>Built-in module integration</h4><ul><li><code>getKillAuraTarget()</code> returns the current static KillAura target wrapper or <code>null</code>.</li><li><code>getBedAuraPosition()</code> returns <code>null</code> unless BedAura exists, is enabled, and has a target position.</li><li><code>getBedAuraProgress()</code> returns <code>{progress, 0}</code>; when BedAura is unavailable/disabled it returns <code>{0, 0}</code>.</li><li><code>isScaffolding()</code> and <code>isTowering()</code> are hard-coded to <code>false</code> in this beta.</li></ul></section>
+</div>
+<div class="method-label"><span>Public methods</span><span class="method-count">39 signatures</span></div><div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">void modules.enable(String moduleName);
+void modules.disable(String moduleName);
+boolean modules.isEnabled(String moduleName);
+Entity modules.getKillAuraTarget();
+Map&lt;String, Object&gt; modules.getSettings(String name);
+Map&lt;String, List&lt;String&gt;&gt; modules.getCategories();
+Vec3 modules.getBedAuraPosition();
+float[] modules.getBedAuraProgress();
+boolean modules.isScaffolding();
+boolean modules.isTowering();
+boolean modules.isHidden(String moduleName);
+void modules.registerGroup(String name);
+void modules.registerButton(String name, boolean defaultValue);
+void modules.registerButton(String group, String name, boolean defaultValue);
+void modules.registerKey(String group, String name, int defaultKey);
+void modules.registerKey(String name, int defaultKey);
+void modules.registerSlider(String group, String name, String suffix, double defaultValue, double minimum, double maximum, double interval);
+void modules.registerSlider(String group, String name, String suffix, int defaultValue, String[] stringArray);
+void modules.registerSlider(String name, double defaultValue, double minimum, double maximum, double interval);
+void modules.registerSlider(String name, int defaultValue, String[] stringArray);
+void modules.registerSlider(String name, String suffix, double defaultValue, double minimum, double maximum, double interval);
+void modules.registerSlider(String name, String suffix, int defaultValue, String[] stringArray);
+void modules.registerDescription(String description);
+void modules.registerColor(String name, int red, int green, int blue);
+void modules.registerColor(String name, int red, int green, int blue, int alpha);
+void modules.registerColor(String group, String name, int red, int green, int blue);
+void modules.registerColor(String group, String name, int red, int green, int blue, int alpha);
+int modules.getColor(String moduleName, String name);
+void modules.setColor(String moduleName, String name, int red, int green, int blue);
+void modules.setColor(String moduleName, String name, int red, int green, int blue, int alpha);
+boolean modules.getButton(String moduleName, String name);
+double modules.getSlider(String moduleName, String name);
+double modules.getSliderMin(String moduleName, String name);
+double modules.getSliderMax(String moduleName, String name);
+String modules.getSliderString(String moduleName, String name);
+boolean modules.getKeyPressed(String moduleName, String name);
+void modules.setButton(String moduleName, String name, boolean value);
+void modules.setSlider(String moduleName, String name, double value);
+void modules.setKey(String moduleName, String name, int code);
+</code></pre></div>
+<p>Register settings in <code>onLoad()</code>. Typed getters cast the found setting directly; using a correct setting name with the wrong getter type can throw <code>ClassCastException</code>.</p>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">void onLoad() {
+    modules.registerGroup("Visuals");
+    modules.registerButton("Visuals", "Enabled", true);
+    modules.registerSlider("Visuals", "Scale", "x", 1.0, 0.5, 3.0, 0.1);
+    modules.registerColor("Visuals", "Color", 255, 255, 255, 255);
+}
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="gl"><h3 data-title="gl" id="gl"><span><code>gl</code></span><a aria-label="Link to this section" class="anchor" href="#gl">#</a></h3><div class="module-primer"><div class="label">Role</div><div class="body"><p><code>gl</code> is a thin immediate-mode OpenGL/GlStateManager bridge for custom rendering. It exposes matrix operations, primitive submission, texture binding, color, clipping, lighting, depth/blend/cull state, polygon offset, and generic capability toggles.</p><p>This namespace intentionally gives scripts low-level state control. Raven does not provide an automatic state scope around these calls, so state you change can affect subsequent game/client rendering unless you restore it.</p></div></div><dl class="fact-grid">
+<div class="fact"><dt>Constants</dt><dd>Methods such as <code>begin</code>, <code>enable</code>, <code>disable</code>, and <code>depthFunc</code> take raw OpenGL integer constants. The scripting sandbox does not automatically import <code>GL11</code>, so scripts commonly use the numeric values already known for Minecraft 1.8.9/OpenGL 1.1.</dd></div>
+<div class="fact"><dt>Color overloads</dt><dd>Float/double colors are forwarded as normalized components. The integer overload treats all components ≤ 1 as already normalized; otherwise each component is divided by 255.</dd></div>
+<div class="fact"><dt>Textures</dt><dd><code>bindTexture(String)</code> constructs a Minecraft <code>ResourceLocation</code> and binds it through the texture manager. <code>bindTextureId(int)</code> binds a raw GL texture ID. <code>getBoundTexture()</code> reads <code>GL_TEXTURE_BINDING_2D</code>.</dd></div>
+<div class="fact"><dt>Matrix stack</dt><dd><code>push()</code>/<code>pop()</code> directly wrap <code>glPushMatrix</code>/<code>glPopMatrix</code>. Always keep them balanced, especially inside render callbacks.</dd></div>
+</dl><div class="module-groups">
+<section class="module-group"><h4>Primitive drawing</h4><ul><li>Use <code>begin(mode)</code>, submit <code>vertex2/vertex3</code>, optional <code>texCoord2</code>/<code>normal</code>, then <code>end()</code>.</li><li>The API does not validate begin/end nesting or whether a submitted operation is legal for the active primitive.</li><li><code>lineWidth</code> and <code>lineSmooth</code> change global GL line state.</li></ul></section>
+<section class="module-group"><h4>State switches</h4><ul><li>Convenience toggles exist for alpha, blend, cull, depth, lighting, texture2D, scissor, line smoothing, polygon offset, and depth-mask writes.</li><li><code>enable(cap)</code>/<code>disable(cap)</code> route common capabilities through <code>GlStateManager</code>; unknown capabilities fall back to raw <code>glEnable/glDisable</code>.</li><li><code>colorMask</code> controls which RGBA channels are writable; restore all four to <code>true</code> unless masking is intentionally persistent.</li></ul></section>
+<section class="module-group"><h4>Polygon offset &amp; depth</h4><ul><li><code>polygonOffset(float factor, float units)</code> sets the GL offset parameters.</li><li><code>polygonOffset(boolean)</code> toggles Raven/Minecraft's polygon-offset state; setting parameters alone does not enable the capability.</li><li><code>depthFunc(int)</code> changes the comparison function globally and should be restored after specialized passes.</li></ul></section>
+<section class="module-group"><h4>Scissor coordinates</h4><ul><li><code>scissor(x,y,width,height)</code> forwards raw window-pixel coordinates to OpenGL; it does not convert Minecraft scaled GUI coordinates or flip Y for you.</li><li><code>scissor(boolean)</code> toggles <code>GL_SCISSOR_TEST</code>.</li></ul></section>
+</div><div class="source-callout"><strong>State discipline:</strong> a safe custom render pass generally pairs <code>push/pop</code>, <code>begin/end</code>, and restores depth, texture, blend, color-mask, line width, bound texture, and color when those states were changed.</div>
+<div class="method-label"><span>Public methods</span><span class="method-count">43 signatures</span></div><div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">void gl.alpha(boolean alpha);
+void gl.begin(int mode);
+void gl.blend(boolean blend);
+void gl.color(float r, float g, float b, float a);
+void gl.color(double r, double g, double b, double a);
+void gl.color(int r, int g, int b, int a);
+void gl.depthFunc(int func);
+void gl.colorMask(boolean red, boolean green, boolean blue, boolean alpha);
+void gl.polygonOffset(float factor, float units);
+void gl.texCoord2(double u, double v);
+void gl.texCoord2(float u, float v);
+void gl.bindTexture(String resource);
+void gl.bindTextureId(int textureId);
+int gl.getBoundTexture();
+void gl.polygonOffset(boolean enabled);
+void gl.cull(boolean cull);
+void gl.depth(boolean depth);
+void gl.depthMask(boolean depthMask);
+void gl.disable(int cap);
+void gl.disableItemLighting();
+void gl.enable(int cap);
+void gl.enableItemLighting(boolean gui);
+void gl.resetColor();
+void gl.end();
+void gl.lighting(boolean lighting);
+void gl.lineSmooth(boolean lineSmooth);
+void gl.lineWidth(float width);
+void gl.lineWidth(double width);
+void gl.normal(float x, float y, float z);
+void gl.normal(double x, double y, double z);
+void gl.pop();
+void gl.push();
+void gl.rotate(float angle, float x, float y, float z);
+void gl.rotate(double angle, double x, double y, double z);
+void gl.scale(float x, float y, float z);
+void gl.scissor(int x, int y, int width, int height);
+void gl.scissor(boolean scissor);
+void gl.texture2d(boolean texture2d);
+void gl.translate(float x, float y, float z);
+void gl.translate(double x, double y, double z);
+void gl.vertex2(float x, float y);
+void gl.vertex3(float x, float y, float z);
+void gl.vertex3(double x, double y, double z);
+</code></pre></div>
+<p>Raw GL helpers directly change OpenGL/Minecraft render state. Balance <code>gl.push()</code> / <code>gl.pop()</code> and restore state you modify.</p>
+<ul>
+<li><code>gl.depthFunc(int)</code> forwards to <code>GL11.glDepthFunc</code>.</li>
+<li><code>gl.colorMask(...)</code> changes framebuffer color-channel writes.</li>
+<li><code>gl.polygonOffset(float factor, float units)</code> sets offset parameters; <code>gl.polygonOffset(boolean)</code> toggles polygon offset state.</li>
+<li><code>gl.texCoord2(...)</code> emits immediate-mode texture coordinates.</li>
+<li><code>gl.bindTexture(String resource)</code> returns <code>void</code> and binds <code>new ResourceLocation(resource)</code> through Minecraft's texture manager.</li>
+<li><code>gl.bindTextureId(int)</code> binds a raw texture ID; <code>gl.getBoundTexture()</code> reads <code>GL_TEXTURE_BINDING_2D</code>.</li>
+</ul>
+</section><section class="doc-block level-3" data-section="config"><h3 data-title="config" id="config"><span><code>config</code></span><a aria-label="Link to this section" class="anchor" href="#config">#</a></h3><div class="module-primer"><div class="label">Role</div><div class="body"><p><code>config</code> is a minimal persistent string key/value store backed by one shared text file: <code>&lt;minecraftDir&gt;/keystrokes/script_config.txt</code>.</p><p>It is not automatically namespaced per script. Prefix your keys with <code>scriptName</code> when collisions with other scripts would be a problem.</p></div></div><dl class="fact-grid">
+<div class="fact"><dt>File format</dt><dd>Each entry is written as <code>key: value</code>, one entry per line. The helper creates the parent directory and file when needed.</dd></div>
+<div class="fact"><dt>set()</dt><dd>Rejects null/empty keys, removes literal <code>:</code> characters from the key, replaces the first matching line, or appends a new line. Returns <code>false</code> on I/O failure.</dd></div>
+<div class="fact"><dt>get()</dt><dd>Rejects null/empty keys and returns <code>null</code> for missing keys or I/O failure. Unlike <code>set</code>, it does not sanitize colons from the lookup key.</dd></div>
+<div class="fact"><dt>Concurrency</dt><dd>Every operation reads/writes the file directly. There is no source-level synchronization or transactional layer around concurrent async writes.</dd></div>
+</dl>
+<div class="method-label"><span>Public methods</span><span class="method-count">2 signatures</span></div><div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">boolean config.set(String key, String value);
+String config.get(String key);
+</code></pre></div>
+<p><code>config</code> stores entries in <code>&lt;minecraftDir&gt;/keystrokes/script_config.txt</code> using <code>key: value</code>. <code>set</code> strips <code>:</code> from the key. <code>get</code> returns <code>null</code> for an invalid/missing key or I/O failure.</p>
+</section><section class="doc-block level-3" data-section="render"><h3 data-title="render" id="render"><span><code>render</code></span><a aria-label="Link to this section" class="anchor" href="#render">#</a></h3><div class="module-primer"><div class="label">Role</div><div class="body"><p><code>render</code> provides the opinionated drawing layer above <code>gl</code>: block/entity overlays, 2D and 3D text, rectangles/gradients, lines, tracers, item/entity GUI rendering, images, world-to-screen projection, theme colors, and post-process blur/bloom helpers.</p><p>Prefer this namespace for common visuals; drop to <code>gl</code> only when the higher-level renderer does not expose the primitive or state you need.</p></div></div><dl class="fact-grid">
+<div class="fact"><dt>Color format</dt><dd>Render helpers consume packed Java ARGB integers. Alpha is the high byte, followed by red, green, and blue.</dd></div>
+<div class="fact"><dt>World overlays</dt><dd><code>entity</code> interpolates the target from last-tick to current position using the supplied <code>partialTicks</code>, expands its bounding box by 0.1, and draws with depth disabled. <code>line3D</code> likewise disables depth while drawing.</dd></div>
+<div class="fact"><dt>Projection</dt><dd><code>worldToScreen</code> subtracts render-manager viewer coordinates, reads the current model/projection/viewport matrices, runs <code>GLU.gluProject</code>, and returns <code>Vec3(screenX, screenY, projectedDepth)</code> or <code>null</code>.</dd></div>
+<div class="fact"><dt>Theme lookup</dt><dd><code>getThemeRGB(theme)</code> resolves the string to the <code>Theme</code> enum then requests gradient position 0. The enum lookup is exact/case-sensitive and invalid names can throw.</dd></div>
+</dl><div class="module-groups">
+<section class="module-group"><h4>2D drawing</h4><ul><li><code>rect</code>, <code>roundedRect</code>, <code>gradientRect</code>, and <code>line2D</code> use GUI/display coordinates.</li><li><code>text</code> is an alias of <code>text2d</code>. Coordinates are divided by the requested scale after the matrix is scaled so the apparent x/y location remains in caller-space.</li><li><code>getFontWidth</code> uses the Minecraft font renderer plus Raven's additional bold-width calculation; <code>getFontHeight</code> returns the font renderer's constant height.</li></ul></section>
+<section class="module-group"><h4>3D drawing</h4><ul><li><code>text3d</code> billboard-rotates text against the render manager's player view and translates relative to interpolated player position.</li><li>The <code>depth</code> parameter is counterintuitive: when <code>true</code>, the implementation disables depth testing/depth writes for the text, so it can draw through geometry.</li><li><code>getPosition()</code> returns the render manager's viewer position, not the local player's raw position.</li></ul></section>
+<section class="module-group"><h4>Items, entities &amp; images</h4><ul><li><code>entityGui</code> only renders wrappers marked as living; non-living entities are ignored.</li><li><code>item</code> uses GUI standard item lighting and the wrapped native item stack.</li><li><code>image</code> returns immediately for null/unloaded images. The first draw creates a <code>DynamicTexture</code>, caches its GL texture ID in the <code>Image</code>, and uses nearest filtering for the configured texture parameter.</li></ul></section>
+<section class="module-group"><h4>Camera values</h4><ul><li><code>getRotations()</code> returns <code>{ playerViewY, playerViewX }</code> from the render manager.</li><li><code>getCameraRotations()</code> returns Raven utility camera yaw/pitch.</li><li>The <code>partialTicks</code> argument of <code>worldToScreen</code> is present in the signature, but the implementation uses Minecraft's current timer render-partial-ticks when setting up the camera.</li></ul></section>
+</div>
+<div class="method-label"><span>Public methods</span><span class="method-count">27 signatures</span></div><div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">void render.block(Vec3 position, int color, boolean outline, boolean shade);
+int render.getThemeRGB(String theme);
+void render.block(int x, int y, int z, int color, boolean outline, boolean shade);
+void render.entity(Entity en, int color, float partialTicks, boolean outline, boolean shade);
+void render.entityGui(Entity en, int x, int y, float mouseX, float mouseY, int scale);
+void render.resetEquippedProgress();
+void render.tracer(Entity entity, float lineWidth, int color, float partialTicks);
+void render.showGui();
+void render.item(ItemStack item, float x, float y, float scale);
+void render.image(Image image, float x, float y, float width, float height);
+Vec3 render.worldToScreen(double x, double y, double z, int scaleFactor, float partialTicks);
+void render.roundedRect(float startX, float startY, float endX, float endY, float radius, int color);
+void render.gradientRect(float startX, float startY, float endX, float endY, int leftColor, int rightColor);
+void render.gradientRect(float startX, float startY, float endX, float endY, int topLeftColor, int bottomLeftColor, int topRightColor, int bottomRightColor);
+double[] render.getRotations();
+double[] render.getCameraRotations();
+int render.getFontWidth(String text);
+int render.getFontHeight();
+Vec3 render.getPosition();
+void render.text(String text, float x, float y, float scale, int color, boolean shadow);
+void render.text2d(String text, float x, float y, float scale, int color, boolean shadow);
+void render.text3d(String text, Vec3 position, float scale, boolean shadow, boolean depth, boolean background, int color);
+void render.rect(float startX, float startY, float endX, float endY, int color);
+void render.line2D(double startX, double startY, double endX, double endY, float lineWidth, int color);
+void render.line3D(Vec3 pos1, Vec3 pos2, float lineWidth, int color);
+void render.line3D(double startX, double startY, double startZ, double endX, double endY, double endZ, float lineWidth, int color);
+boolean render.isInView(Entity en);
+</code></pre></div>
+<p><code>render.getThemeRGB(theme)</code> uses an exact, case-sensitive <code>Theme</code> enum name. Valid names are:
+<code>Rainbow</code>, <code>Cherry</code>, <code>Cotton_candy</code>, <code>Flare</code>, <code>Flower</code>, <code>Gold</code>, <code>Grayscale</code>, <code>Royal</code>, <code>Sky</code>, <code>Vine</code>.</p>
+<p><code>Cotton_candy</code> is the enum constant; <code>Cotton candy</code> is only a UI label. <code>Default</code> is not accepted. Invalid names resolve to <code>null</code> and can throw a <code>NullPointerException</code> when <code>.ordinal()</code> is used.</p>
+<p>For manual world GL rendering, translate world coordinates by <code>render.getPosition()</code> (viewer position) before emitting vertices.</p>
+</section><section class="doc-block level-3" data-section="render-blur"><h3 data-title="render.blur" id="render-blur"><span><code>render.blur</code></span><a aria-label="Link to this section" class="anchor" href="#render-blur">#</a></h3><div class="module-primer"><div class="label">Two-pass helper</div><div class="body"><p><code>render.blur</code> exposes Raven's blur capture/composite sequence. Call <code>prepare()</code> before drawing the content/mask expected by Raven's blur utility, then finish with <code>apply(passes, radius)</code>.</p><p>The wrapper performs no range validation for <code>passes</code> or <code>radius</code>; behavior and cost are delegated to <code>BlurUtils</code>.</p></div></div>
+<div class="method-label"><span>Public methods</span><span class="method-count">2 signatures</span></div><div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">void render.blur.prepare();
+void render.blur.apply(int passes, float radius);
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="render-bloom"><h3 data-title="render.bloom" id="render-bloom"><span><code>render.bloom</code></span><a aria-label="Link to this section" class="anchor" href="#render-bloom">#</a></h3><div class="module-primer"><div class="label">Two-pass helper</div><div class="body"><p><code>render.bloom</code> mirrors the blur helper but routes to Raven's bloom preparation/finalization functions. The intended order is <code>prepare()</code>, draw the bloom source/mask, then <code>apply(passes, radius)</code>.</p><p>As with blur, the scripting wrapper does not clamp or validate pass count/radius.</p></div></div>
+<div class="method-label"><span>Public methods</span><span class="method-count">2 signatures</span></div><div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">void render.bloom.prepare();
+void render.bloom.apply(int passes, float radius);
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="inventory"><h3 data-title="inventory" id="inventory"><span><code>inventory</code></span><a aria-label="Link to this section" class="anchor" href="#inventory">#</a></h3><div class="module-primer"><div class="label">Role</div><div class="body"><p><code>inventory</code> wraps the local player's selected slot, open container clicks, chest/crafting contents, book GUI text, current container name, and a helper for opening the inventory screen.</p><p>Most methods assume <code>mc.thePlayer</code> is present. Slot and click indices are passed through as raw Minecraft 1.8.9 values rather than being range-checked by the scripting layer.</p></div></div><dl class="fact-grid">
+<div class="fact"><dt>Selected slot</dt><dd><code>getSlot()</code>/<code>setSlot()</code> read/write <code>inventory.currentItem</code> directly. The wrapper does not clamp the value to the normal hotbar range.</dd></div>
+<div class="fact"><dt>Container clicks</dt><dd><code>click(slot,button,mode)</code> calls <code>windowClick</code> using the current open-container window ID and local player. Button/mode semantics are native 1.8.9 container-click semantics.</dd></div>
+<div class="fact"><dt>Missing content</dt><dd>Stack getters return <code>null</code> for empty or incompatible slots. <code>getChestSize()</code> returns <code>-1</code> outside a chest. Name helpers generally return an empty string when unavailable.</dd></div>
+<div class="fact"><dt>Open helper</dt><dd><code>open()</code> simulates the inventory key binding. If the binding is unassigned (key code 0), it temporarily assigns key code 13, triggers it, then restores 0 and rebuilds the key-binding map.</dd></div>
+</dl><div class="module-groups">
+<section class="module-group"><h4>Book text</h4><ul><li><code>getBookContents()</code> only works while the current GUI is <code>GuiScreenBook</code>.</li><li>It copies unformatted component text and limits output to <code>min(128 / FONT_HEIGHT, bookContents.size())</code> lines.</li><li>Returns <code>null</code> when no usable book content is available; an internal null content list becomes an empty list before the final null result.</li></ul></section>
+<section class="module-group"><h4>Chest &amp; crafting wrappers</h4><ul><li><code>getStackInChestSlot</code> requires the open container to be <code>ContainerChest</code>.</li><li><code>getStackInCraftingSlot</code> and <code>getCraftResult</code> only support <code>ContainerWorkbench</code>.</li><li>Returned stacks are new scripting <code>ItemStack</code> wrappers around the native stack.</li></ul></section>
+</div>
+<div class="method-label"><span>Public methods</span><span class="method-count">13 signatures</span></div><div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">int inventory.getSlot();
+void inventory.setSlot(int slot);
+void inventory.click(int slot, int button, int mode);
+List&lt;String&gt; inventory.getBookContents();
+String inventory.getChest();
+String inventory.getContainer();
+int inventory.getSize();
+int inventory.getChestSize();
+ItemStack inventory.getStackInSlot(int slot);
+ItemStack inventory.getStackInChestSlot(int slot);
+ItemStack inventory.getStackInCraftingSlot(int slot);
+ItemStack inventory.getCraftResult();
+void inventory.open();
+</code></pre></div>
+<p>Inventory/chest/crafting stack getters return <code>null</code> when the requested context/slot has no stack. <code>getChestSize()</code> returns <code>-1</code> outside a chest. <code>getChest()</code> / <code>getContainer()</code> use empty string when unavailable.</p>
+</section><section class="doc-block level-3" data-section="keybinds"><h3 data-title="keybinds" id="keybinds"><span><code>keybinds</code></span><a aria-label="Link to this section" class="anchor" href="#keybinds">#</a></h3><div class="module-primer"><div class="label">Role</div><div class="body"><p><code>keybinds</code> exposes both named Minecraft key bindings and raw LWJGL keyboard/mouse state. It also provides direct helpers for triggering Minecraft's left/right click routines.</p><p>Named bindings come from <code>Minecraft.gameSettings.keyBindings</code>. Raven stores each binding under its key description with the leading <code>"key."</code> removed.</p></div></div><dl class="fact-grid">
+<div class="fact"><dt>Named bindings</dt><dd><code>isPressed</code>, <code>setPressed</code>, <code>onTick</code>, and <code>getKeyCode</code> resolve Raven's name map. Unknown names are ignored; <code>getKeyCode</code> returns <code>-1</code>.</dd></div>
+<div class="fact"><dt>Alias</dt><dd><code>getKeycode(String)</code> is simply an alias that calls <code>getKeyCode(String)</code>.</dd></div>
+<div class="fact"><dt>Raw input</dt><dd><code>getKeyIndex</code> uses LWJGL's keyboard-name lookup; <code>isKeyDown(int)</code> and <code>isMouseDown(int)</code> query raw device state.</dd></div>
+<div class="fact"><dt>Mouse coordinates</dt><dd><code>getMousePosition()</code> returns raw LWJGL display-space <code>{x,y}</code>, not scaled Minecraft GUI coordinates.</dd></div>
+</dl><div class="source-callout"><strong>Scroll wheel:</strong> <code>getScroll()</code> directly calls <code>Mouse.getDWheel()</code>. LWJGL wheel deltas are consumptive/event-like, so do not assume repeated reads in the same logical input flow will produce the same value.</div>
+<div class="method-label"><span>Public methods</span><span class="method-count">12 signatures</span></div><div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">int[] keybinds.getMousePosition();
+boolean keybinds.isPressed(String key);
+void keybinds.setPressed(String key, boolean pressed);
+void keybinds.onTick(String key);
+int keybinds.getKeyCode(String key);
+int keybinds.getKeycode(String key);
+int keybinds.getKeyIndex(String key);
+boolean keybinds.isMouseDown(int mouseButton);
+boolean keybinds.isKeyDown(int key);
+void keybinds.rightClick();
+void keybinds.leftClick();
+int keybinds.getScroll();
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="util"><h3 data-title="util" id="util"><span><code>util</code></span><a aria-label="Link to this section" class="anchor" href="#util">#</a></h3><div class="module-primer"><div class="label">Role</div><div class="body"><p><code>util</code> contains small formatting/math helpers: Minecraft color formatting, color-code stripping, decimal rounding, and inclusive/exclusive random ranges.</p></div></div><dl class="fact-grid">
+<div class="fact"><dt>Colors</dt><dd><code>color(message)</code> delegates to Raven's <code>Utils.formatColor</code>; <code>strip(string)</code> delegates to <code>Utils.stripColor</code>.</dd></div>
+<div class="fact"><dt>Integer random</dt><dd><code>randomInt(min,max)</code> uses <code>nextInt(max - min + 1) + min</code>, making both integer endpoints inclusive. Invalid reversed/overflowing ranges are not guarded by this wrapper.</dd></div>
+<div class="fact"><dt>Double random</dt><dd><code>randomDouble(min,max)</code> computes <code>min + (max-min) * nextDouble()</code>: lower bound inclusive, upper bound normally exclusive.</dd></div>
+<div class="fact"><dt>Round</dt><dd><code>round(value,decimals)</code> delegates entirely to Raven's shared rounding utility; the scripting layer adds no extra validation.</dd></div>
+</dl>
+<div class="method-label"><span>Public methods</span><span class="method-count">5 signatures</span></div><div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">String util.color(String message);
+String util.strip(String string);
+double util.round(double value, int decimals);
+int util.randomInt(int min, int max);
+double util.randomDouble(double min, double max);
+</code></pre></div>
+</section><section class="doc-block level-2" data-section="models"><h2 data-title="Models" id="models"><span>Models</span><a aria-label="Link to this section" class="anchor" href="#models">#</a></h2>
+<p>The following are the normal script-facing wrapper/model APIs. Some wrappers expose native Minecraft backing fields for implementation purposes; do not build scripts around those fields because native <code>net.minecraft.*</code> classes are outside the normal <code>SecureClassLoader</code> package whitelist.</p>
+</section><section class="doc-block level-3" data-section="vec3"><h3 data-title="Vec3" id="vec3"><span><code>Vec3</code></span><a aria-label="Link to this section" class="anchor" href="#vec3">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public double x, y, z;
+public Vec3(double x, double y, double z);
+public boolean equals(Vec3 vector2);
+public Vec3 offset(Vec3 position);
+public Vec3 offset(double x, double y, double z);
+public Vec3 ceil();
+public Vec3 floor();
+public Vec3 inverse();
+public Vec3 translate(Vec3 position);
+public Vec3 translate(double x, double y, double z);
+public double distanceTo(Vec3 vec3);
+public double distanceToSq(Vec3 vec3);
+public String toString();
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="block"><h3 data-title="Block" id="block"><span><code>Block</code></span><a aria-label="Link to this section" class="anchor" href="#block">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public String type;
+public String name;
+public boolean interactable;
+public int variant;
+public double height, width, length;
+public double x, y, z;
+public Block(int x, int y, int z);
+public Block(String name);
+public Block(Vec3 position);
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="entity"><h3 data-title="Entity" id="entity"><span><code>Entity</code></span><a aria-label="Link to this section" class="anchor" href="#entity">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public net.minecraft.entity.Entity entity;
+public String type;
+public int entityId;
+public boolean isLiving;
+public boolean isPlayer;
+public boolean isUser;
+public boolean allowEditing();
+public double distanceTo(Vec3 position);
+public double distanceToSq(Vec3 position);
+public double distanceToGround();
+public boolean isHoldingBlock();
+public boolean isHoldingWeapon();
+public float getAbsorption();
+public Vec3 getBlockPosition();
+public String getDisplayName();
+public Entity getRidingEntity();
+public Entity getRiddenByEntity();
+public Vec3 getServerPosition();
+public int getExperienceLevel();
+public float getExperience();
+public float getFallDistance();
+public String getUUID();
+public String getCustomNameTag();
+public double getBPS();
+public String getFacing();
+public float getHealth();
+public boolean isSleeping();
+public float getEyeHeight();
+public float getHeight();
+public float getWidth();
+public boolean isBurning();
+public int getStackSize();
+public ItemStack getHeldItem();
+public int getHurtTime();
+public boolean isConsuming();
+public Vec3 getLastPosition();
+public float getMaxHealth();
+public int getMaxHurtTime();
+public String getName();
+public NetworkPlayer getNetworkPlayer();
+public float getPitch();
+public Vec3 getPosition();
+public List&lt;Object[]&gt; getPotionEffects();
+public ItemStack getArmorInSlot(int slot);
+public double getSpeed();
+public int getSwingProgress();
+public float getPrevSwingProgress();
+public int getTicksExisted();
+public float getYaw();
+public int getFireResistance();
+public float getPrevYaw();
+public void setPrevYaw(float prevYaw);
+public void setPrevPitch(float prevPitch);
+public float getPrevPitch();
+public boolean isCreative();
+public boolean isCollided();
+public boolean isCollidedHorizontally();
+public boolean isCollidedVertically();
+public boolean isDead();
+public int getHunger();
+public float getSaturation();
+public float getAir();
+public boolean isInvisible();
+public boolean isInWater();
+public boolean isInLava();
+public Entity getFisher();
+public boolean isInLiquid();
+public boolean isOnLadder();
+public boolean isOnEdge();
+public boolean isSprinting();
+public boolean isSneaking();
+public boolean isUsingItem();
+public boolean onGround();
+public void setMotion(double x, double y, double z);
+public Vec3 getMotion();
+public void setPitch(float pitch);
+public void setYaw(float yaw);
+public void moveTo(Vec3 position);
+public void moveTo(double x, double y, double z);
+public void moveTo(Vec3 position, float yaw, float pitch);
+public void moveTo(double x, double y, double z, float yaw, float pitch);
+public void moveTo(Vec3 position, float yaw, float pitch, int interpolationTicks);
+public void moveTo(double x, double y, double z, float yaw, float pitch, int interpolationTicks);
+public void setPosition(Vec3 position);
+public void setPosition(double x, double y, double z);
+</code></pre></div>
+<p><code>Entity.moveTo(...)</code> behavior:</p>
+<ul>
+<li>overloads without yaw/pitch preserve current yaw/pitch;</li>
+<li>overloads without interpolation call <code>setPositionAndRotation</code> immediately;</li>
+<li>interpolation overloads call <code>setPositionAndRotation2(..., interpolationTicks, false)</code> when <code>interpolationTicks &gt; 0</code>, otherwise they move immediately;</li>
+<li><code>Vec3</code> overloads do nothing if the position is <code>null</code>.</li>
+</ul>
+<p>Common sentinel behavior: living/player-only getters often return <code>-1</code>, <code>0</code>, <code>false</code>, or <code>null</code> when the backing entity is incompatible. Check <code>isLiving</code> / <code>isPlayer</code> where relevant.</p>
+</section><section class="doc-block level-3" data-section="itemstack"><h3 data-title="ItemStack" id="itemstack"><span><code>ItemStack</code></span><a aria-label="Link to this section" class="anchor" href="#itemstack">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public String type;
+public String name;
+public String displayName;
+public int stackSize;
+public int maxStackSize;
+public int durability;
+public int maxDurability;
+public boolean isBlock;
+public net.minecraft.item.ItemStack itemStack;
+public int meta;
+public ItemStack(String name);
+public List&lt;String&gt; getTooltip();
+public List&lt;Object[]&gt; getEnchantments();
+public String toString();
+</code></pre></div>
+<p><code>new ItemStack("stone")</code> or <code>new ItemStack("wool:14")</code> resolves a Minecraft 1.8.9 registry item with optional metadata. <code>getEnchantments()</code> returns <code>null</code> when no enchantments exist; otherwise entries are <code>{String normalizedEnchantName, Integer level}</code>.</p>
+</section><section class="doc-block level-3" data-section="networkplayer"><h3 data-title="NetworkPlayer" id="networkplayer"><span><code>NetworkPlayer</code></span><a aria-label="Link to this section" class="anchor" href="#networkplayer">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public String getCape();
+public String getDisplayName();
+public String getName();
+public int getPing();
+public String getSkinData();
+public String getUUID();
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="tileentity"><h3 data-title="TileEntity" id="tileentity"><span><code>TileEntity</code></span><a aria-label="Link to this section" class="anchor" href="#tileentity">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public String type;
+public String name;
+public Vec3 getPosition();
+public Object[] getSkullData();
+</code></pre></div>
+<p>For skulls, <code>getSkullData()</code> returns <code>{skullType, skullRotation, profileName, profileUUID, null}</code>; non-skulls return <code>null</code>.</p>
+</section><section class="doc-block level-3" data-section="movementinput"><h3 data-title="MovementInput" id="movementinput"><span><code>MovementInput</code></span><a aria-label="Link to this section" class="anchor" href="#movementinput">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public float forward;
+public float strafe;
+public boolean jump;
+public boolean sneak;
+public MovementInput(float forward, float strafe, boolean jump, boolean sneak);
+public MovementInput(Object[] state);
+public Object[] asArray();
+public boolean equals(MovementInput input);
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="playerstate"><h3 data-title="PlayerState" id="playerstate"><span><code>PlayerState</code></span><a aria-label="Link to this section" class="anchor" href="#playerstate">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public double x, y, z;
+public float yaw, pitch;
+public boolean onGround;
+public boolean isSprinting;
+public boolean isSneaking;
+public PlayerState(Object[] state);
+public Object[] asArray();
+public boolean equals(PlayerState playerState);
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="bridge"><h3 data-title="Bridge" id="bridge"><span><code>Bridge</code></span><a aria-label="Link to this section" class="anchor" href="#bridge">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public void add(String key, Object value);
+public void add(String key);
+public void remove(String key);
+public boolean has(String key);
+public Object get(String key);
+public void clear();
+</code></pre></div>
+<p><code>bridge</code> is one shared static object, so keys can be used for cross-script state. <code>bridge.add(key)</code> stores <code>null</code>; <code>bridge.get(key)</code> returns <code>null</code> for missing keys.</p>
+</section><section class="doc-block level-3" data-section="simulation"><h3 data-title="Simulation" id="simulation"><span><code>Simulation</code></span><a aria-label="Link to this section" class="anchor" href="#simulation">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public static Simulation create();
+public void setForward(float forward);
+public void setStrafe(float strafe);
+public void setJump(boolean jump);
+public void setSneak(boolean sneak);
+public void setYaw(float yaw);
+public void setPitch(float pitch);
+public void setSprinting(boolean sprinting);
+public void resetState(double x, double y, double z, boolean onGround);
+public void tick();
+public Vec3 getPosition();
+public Vec3 getMotion();
+public boolean onGround();
+</code></pre></div>
+</section><section class="doc-block level-2" data-section="http-json-images-and-websockets"><h2 data-title="HTTP, JSON, images, and WebSockets" id="http-json-images-and-websockets"><span>HTTP, JSON, images, and WebSockets</span><a aria-label="Link to this section" class="anchor" href="#http-json-images-and-websockets">#</a></h2>
+</section><section class="doc-block level-3" data-section="request"><h3 data-title="Request" id="request"><span><code>Request</code></span><a aria-label="Link to this section" class="anchor" href="#request">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public String method;
+public String url;
+public List&lt;String[]&gt; headers;
+public String userAgent;
+public int connectionTimeout;
+public int readTimeout;
+public String content;
+public Request(String method, String URL);
+public void addHeader(String header, String value);
+public void setUserAgent(String userAgent);
+public void setConnectTimeout(int timeout);
+public void setReadTimeout(int timeout);
+public void setContent(String content);
+public Response fetch();
+public String toString();
+</code></pre></div>
+<p>Only exact <code>"GET"</code> and <code>"POST"</code> are retained; any other method becomes <code>GET</code>. Default connect/read timeouts are 5000 ms. If HTTP is disabled, <code>fetch()</code> returns <code>new Response(404, "")</code>. I/O failure can return <code>null</code>. POST content is sent as UTF-8 JSON when non-empty.</p>
+</section><section class="doc-block level-3" data-section="response"><h3 data-title="Response" id="response"><span><code>Response</code></span><a aria-label="Link to this section" class="anchor" href="#response">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public Response(int responseCode, String contents, List&lt;String[]&gt; headers);
+public Response(int responseCode, String contents);
+public int code();
+public String string();
+public Json json();
+public List&lt;String[]&gt; headers();
+public String toString();
+</code></pre></div>
+<p><code>json()</code> calls <code>Json.parse(contents)</code> when contents is non-null; malformed JSON can throw a Gson parse/runtime exception.</p>
+</section><section class="doc-block level-3" data-section="json"><h3 data-title="Json" id="json"><span><code>Json</code></span><a aria-label="Link to this section" class="anchor" href="#json">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public enum Type { OBJECT, ARRAY, STRING, NUMBER, BOOLEAN, NULL }
+public static Json parse(String jsonString);
+public static Json object();
+public static Json array();
+public static Json string(String value);
+public static Json number(Number value);
+public static Json booleanValue(boolean value);
+public static Json nullValue();
+public Type type();
+public Json add(String key, Json value);
+public Json add(String key, String val);
+public Json add(String key, Number val);
+public Json add(String key, boolean val);
+public Json get(String key);
+public boolean has(String key);
+public Json add(Json value);
+public Json add(String val);
+public Json add(Number val);
+public Json add(boolean val);
+public List&lt;Json&gt; asArray();
+public String asString();
+public int asInt();
+public double asDouble();
+public long asLong();
+public float asFloat();
+public boolean asBoolean();
+public LinkedHashSet&lt;String&gt; keys();
+public Json remove(String key);
+public Json remove(int index);
+public String toString();
+</code></pre></div>
+<p>Object-only operations throw <code>IllegalStateException</code> on non-objects; array-only operations do the same on non-arrays. <code>get(missingKey)</code> returns <code>Json.nullValue()</code> rather than Java <code>null</code>.</p>
+</section><section class="doc-block level-3" data-section="image"><h3 data-title="Image" id="image"><span><code>Image</code></span><a aria-label="Link to this section" class="anchor" href="#image">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public String url;
+public BufferedImage bufferedImage;
+public int height;
+public int width;
+public int textureId;
+public boolean cached;
+public Image(String url, boolean cached);
+public float[] getDimensions();
+public boolean isLoaded();
+public static void clearCache();
+public String toString();
+</code></pre></div>
+<p>Image loading is asynchronous. <code>isLoaded()</code> becomes true when <code>bufferedImage</code> is set. In this beta, <code>Image</code> URL loading does not itself check the Manager HTTP toggle.</p>
+</section><section class="doc-block level-3" data-section="message"><h3 data-title="Message" id="message"><span><code>Message</code></span><a aria-label="Link to this section" class="anchor" href="#message">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public ChatComponentText component;
+public Message(String message);
+public void appendStyle(String style, String action, String styleMessage, String message);
+public void append(String append);
+public List&lt;Message&gt; getSiblings();
+public String getStyle();
+public String getText();
+public String toString();
+</code></pre></div>
+<p><code>appendStyle</code> recognizes exact <code>"HOVER"</code> and <code>"CLICK"</code>. The <code>action</code> string is resolved against Minecraft's corresponding enum using exact enum names.</p>
+</section><section class="doc-block level-3" data-section="websocket"><h3 data-title="WebSocket" id="websocket"><span><code>WebSocket</code></span><a aria-label="Link to this section" class="anchor" href="#websocket">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public WebSocket(String serverURI);
+public WebSocket(String serverUri, Map&lt;String, String&gt; httpHeaders);
+public void onOpen(short status, String message);
+public void onMessage(String message);
+public void onClose(int code, String reason, boolean remote);
+public void onError(Exception ex);
+public boolean connect(boolean block);
+public void send(String message);
+public void close(boolean block);
+public boolean isOpen();
+</code></pre></div>
+<p>Override <code>onOpen</code>, <code>onMessage</code>, <code>onClose</code>, and/or <code>onError</code> in a subclass/anonymous subclass. <code>connect</code> returns <code>false</code> when websockets are disabled in Manager. With <code>block=true</code>, connect/close use the blocking websocket calls.</p>
+</section><section class="doc-block level-2" data-section="packet-api"><h2 data-title="Packet API" id="packet-api"><span>Packet API</span><a aria-label="Link to this section" class="anchor" href="#packet-api">#</a></h2>
+<p>Packet callbacks use wrapper classes. Unknown/unmapped packets fall back to generic <code>CPacket</code> / <code>SPacket</code> wrappers containing the native packet and simple class name.</p>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">public class CPacket {
+    public String name;
+    public net.minecraft.network.Packet packet;
+    public Packet convert();
+}
+
+public class SPacket {
+    public String name;
+    public net.minecraft.network.Packet packet;
+}
+</code></pre></div>
+<ul>
+<li>Send outbound wrappers with <code>client.sendPacket(...)</code> or <code>client.sendPacketNoEvent(...)</code>.</li>
+<li>Process inbound wrappers with <code>client.processPacket(...)</code> or <code>client.processPacketNoEvent(...)</code>.</li>
+<li>Packet callbacks receive wrapper objects for inspection/cancellation. Raven does not copy edited wrapper fields back into the original event packet after the callback.</li>
+<li><code>client.processPacket(SPacket)</code> processes the wrapper's backing native packet; editing only the wrapper fields does not rebuild that backing packet.</li>
+<li>String-backed packet enums are resolved through exact native enum names; use the uppercase Minecraft 1.8.9 identifiers expected by the packet type.</li>
+</ul>
+</section><section class="doc-block level-3" data-section="serverbound-wrappers"><h3 data-title="Serverbound wrappers" id="serverbound-wrappers"><span>Serverbound wrappers</span><a aria-label="Link to this section" class="anchor" href="#serverbound-wrappers">#</a></h3>
+<div class="data-table-wrap"><table><thead><tr><th>Wrapper</th><th>Public fields</th><th>Script constructor(s)</th></tr></thead><tbody><tr><td>C01</td><td>String message</td><td>C01(String message)</td></tr><tr><td>C02</td><td>Entity entity; String action; Vec3 hitVec</td><td>C02(Entity entity, String action, Vec3 hitVec)</td></tr><tr><td>C03</td><td>Vec3 position; float yaw; float pitch; boolean ground; boolean moving; boolean rotating</td><td>C03(boolean ground); C03(Vec3 position, boolean ground); C03(float yaw, float pitch, boolean ground); C03(Vec3 position, float yaw, float pitch, boolean ground)</td></tr><tr><td>C07</td><td>Vec3 position; String status; String facing</td><td>C07(Vec3 position, String status, String facing)</td></tr><tr><td>C08</td><td>ItemStack itemStack; Vec3 position; int direction; Vec3 offset</td><td>C08(ItemStack itemStack, Vec3 position, int direction, Vec3 offset)</td></tr><tr><td>C09</td><td>int slot</td><td>C09(int slot)</td></tr><tr><td>C0A</td><td>—</td><td>C0A()</td></tr><tr><td>C0B</td><td>String action; int horsePower</td><td>C0B(String action, int horsePower)</td></tr><tr><td>C0D</td><td>int windowId</td><td>C0D(int windowId)</td></tr><tr><td>C0E</td><td>int windowId; int slot; int button; int mode; short action; ItemStack itemStack</td><td>C0E(int windowId, int slot, int button, int mode, ItemStack itemStack)</td></tr><tr><td>C0F</td><td>int windowId; short uid</td><td>C0F(int windowId, short uid)</td></tr><tr><td>C10</td><td>int slot; ItemStack itemStack</td><td>C10(int slot, ItemStack itemStack)</td></tr><tr><td>C13</td><td>boolean invulnerable; boolean flying; boolean allowFlying; boolean creativeMode; float flySpeed; float walkSpeed</td><td>C13(boolean invulnerable, boolean flying, boolean allowFlying, boolean creativeMode, float flySpeed, float walkSpeed)</td></tr><tr><td>C16</td><td>String status</td><td>C16(String status)</td></tr></tbody></table></div>
+</section><section class="doc-block level-3" data-section="clientbound-wrappers"><h3 data-title="Clientbound wrappers" id="clientbound-wrappers"><span>Clientbound wrappers</span><a aria-label="Link to this section" class="anchor" href="#clientbound-wrappers">#</a></h3>
+<div class="data-table-wrap"><table><thead><tr><th>Wrapper</th><th>Public fields</th><th>Script constructor(s)</th></tr></thead><tbody><tr><td>S02</td><td>byte type; String message</td><td>S02(byte type, String message)</td></tr><tr><td>S04</td><td>int entityId; int slot; ItemStack item</td><td>S04(int entityId, int slot, ItemStack item)</td></tr><tr><td>S06</td><td>float health; float saturation; int food</td><td>S06(float health, float saturation, int food)</td></tr><tr><td>S08</td><td>Vec3 position; float yaw; float pitch; Set<string> enumFlags</string></td><td>S08(Vec3 position, float yaw, float pitch, Set<string> enumFlags)</string></td></tr><tr><td>S0B</td><td>int entityId; int type</td><td>S0B(int entityId, int type)</td></tr><tr><td>S12</td><td>int entityId; Vec3 motion</td><td>S12(int entityId, Vec3 motion)</td></tr><tr><td>S14</td><td>int entityId; byte posX; byte posY; byte posZ; byte yaw; byte pitch; boolean onGround; boolean rotating</td><td>S14(int entityId, byte posX, byte posY, byte posZ, byte yaw, byte pitch, boolean onGround); S14(int entityId, byte posX, byte posY, byte posZ, boolean onGround); S14(int entityId, byte yaw, byte pitch, boolean onGround)</td></tr><tr><td>S23</td><td>Vec3 position; Block block</td><td>S23(Vec3 position)</td></tr><tr><td>S25</td><td>int entityId; Block block; int progress</td><td>S25(int entityId, Block block, int progress); S25(int entityId, Vec3 position, int progress)</td></tr><tr><td>S27</td><td>float strength; Vec3 position; Vec3 motion; List<vec3> affectedBlockPositions</vec3></td><td>S27(float strength, Vec3 position, Vec3 motion, List<vec3> affectedBlockPositions)</vec3></td></tr><tr><td>S29</td><td>String sound; Vec3 position; float volume; float pitch</td><td>S29(String sound, Vec3 position, float volume, float pitch)</td></tr><tr><td>S2A</td><td>String type; Vec3 position; Vec3 offset; float speed; int count; boolean longDistance; int[] args</td><td>S2A(String type, boolean longDistance, Vec3 position, Vec3 offset, float speed, int count, int[] args)</td></tr><tr><td>S2F</td><td>int windowId; int slot; ItemStack itemStack</td><td>S2F(int windowId, int slot, ItemStack itemStack)</td></tr><tr><td>S3A</td><td>String[] matches</td><td>S3A(String[] matches)</td></tr><tr><td>S3E</td><td>String name; String displayName; String prefix; String suffix; String nametagVisibility; Collection<string> playerList; int action; int friendlyFlags; int color</string></td><td>callback/inspection wrapper; no simple script constructor</td></tr><tr><td>S45</td><td>String type; String message</td><td>S45(String type, String message, int fadeInTime, int displayTime, int fadeOutTime)</td></tr><tr><td>S48</td><td>String url; String hash</td><td>S48(String url, String hash)</td></tr></tbody></table></div>
+</section><section class="doc-block level-2" data-section="source-verified-quirks"><h2 data-title="Source-verified quirks" id="source-verified-quirks"><span>Source-verified quirks</span><a aria-label="Link to this section" class="anchor" href="#source-verified-quirks">#</a></h2>
+<p>These are implementation facts for this beta and should affect generated code:</p>
+<ul>
+<li><code>world.isValidEntity(Entity)</code> checks <code>mc.theWorld.loadedEntityList.contains(entity)</code> using the <strong>wrapper</strong>, while the list contains native entities. Do not rely on it; prefer ID/world queries.</li>
+<li><code>modules.isScaffolding()</code> and <code>modules.isTowering()</code> return <code>false</code> unconditionally.</li>
+<li><code>client.getUID()</code> returns constant <code>4</code>.</li>
+<li><code>client.getServerDirection(PlayerState)</code> returns exactly <code>state.yaw</code>.</li>
+<li><code>Entity.getServerPosition()</code> wraps raw <code>serverPosX/serverPosY/serverPosZ</code> values; these are not normal world-coordinate doubles.</li>
+<li><code>Entity.isInLiquid()</code> returns <code>!entity.isOffsetPositionInLiquid(0, 0, 0)</code>, which is counterintuitive.</li>
+<li><code>NetworkPlayer.getCape()</code> has no null guard around the cape resource and can throw when no cape exists.</li>
+<li>A received <code>S12.motion</code> is built directly from the packet's integer motion getters without normalization in the wrapper.</li>
+<li>The received-packet <code>S14</code> constructor does not populate <code>onGround</code>.</li>
+<li>The received-packet <code>S45</code> constructor dereferences <code>packet.getMessage()</code>; packet modes without a message can be unsafe. Fade timing fields are private.</li>
+<li>The native-packet <code>C0D</code> wrapper constructor does not populate <code>windowId</code>.</li>
+<li>The native-packet <code>C13</code> wrapper constructor does not populate the public ability fields.</li>
+<li><code>C0E(windowId, slot, button, mode, itemStack)</code> does not set <code>action</code>; it remains <code>0</code> unless assigned before conversion/send.</li>
+<li><code>C0F.convert()</code> always creates the native confirm-transaction packet with <code>accepted=true</code>.</li>
+<li><code>C03</code> constructors create the backing native movement packet immediately; later edits to the wrapper's public fields do not rebuild that packet when it is sent.</li>
+<li><code>modules</code> typed setting getters perform direct casts and can throw when the wrong getter type is used.</li>
+<li><code>world.clearClientEntities()</code> is global to the static client-entity manager, not scoped per script.</li>
+<li><code>render.getThemeRGB()</code> is exact/case-sensitive and invalid strings can throw.</li>
+</ul>
+</section><section class="doc-block level-2" data-section="canonical-patterns"><h2 data-title="Canonical patterns" id="canonical-patterns"><span>Canonical patterns</span><a aria-label="Link to this section" class="anchor" href="#canonical-patterns">#</a></h2>
+</section><section class="doc-block level-3" data-section="client-side-mob-lifecycle"><h3 data-title="Client-side mob lifecycle" id="client-side-mob-lifecycle"><span>Client-side mob lifecycle</span><a aria-label="Link to this section" class="anchor" href="#client-side-mob-lifecycle">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">Entity dummy;
+
+void onEnable() {
+    Entity me = client.getPlayer();
+    if (me == null) return;
+    Vec3 p = me.getPosition();
+    dummy = world.spawnMob("Zombie", p.x + 2, p.y, p.z);
+}
+
+void onDisable() {
+    if (dummy != null) {
+        world.removeClientEntity(dummy);
+        dummy = null;
+    }
+}
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="local-tab-list-display-override"><h3 data-title="Local tab-list display override" id="local-tab-list-display-override"><span>Local tab-list display override</span><a aria-label="Link to this section" class="anchor" href="#local-tab-list-display-override">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">void onEnable() {
+    client.setTabName("SomePlayer", util.color("&amp;bLocal Alias"));
+}
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="title-text"><h3 data-title="Title text" id="title-text"><span>Title text</span><a aria-label="Link to this section" class="anchor" href="#title-text">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">world.setTitleText("Round Start", "Good luck", 10, 40, 10);
+// later
+world.clearTitleText();
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="theme-color"><h3 data-title="Theme color" id="theme-color"><span>Theme color</span><a aria-label="Link to this section" class="anchor" href="#theme-color">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">int color = render.getThemeRGB("Cherry");
+render.text2d("Theme text", 8, 8, 1.0f, color, true);
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="mutable-movement-input"><h3 data-title="Mutable movement input" id="mutable-movement-input"><span>Mutable movement input</span><a aria-label="Link to this section" class="anchor" href="#mutable-movement-input">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">void onPrePlayerInput(MovementInput input) {
+    if (modules.getButton(scriptName, "Auto Jump")) {
+        input.jump = true;
+    }
+}
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="rotation-callback"><h3 data-title="Rotation callback" id="rotation-callback"><span>Rotation callback</span><a aria-label="Link to this section" class="anchor" href="#rotation-callback">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">Float[] getRotations() {
+    Entity player = client.getPlayer();
+    if (player == null) return null;
+    return new Float[]{player.getYaw() + 15.0f, null};
+}
+</code></pre></div>
+</section><section class="doc-block level-3" data-section="http-json"><h3 data-title="HTTP JSON" id="http-json"><span>HTTP JSON</span><a aria-label="Link to this section" class="anchor" href="#http-json">#</a></h3>
+<div class="code-wrap"><div class="code-bar"><span>JAVA</span><button class="copy-code" type="button">Copy</button></div><pre><code class="language-java">void loadData() {
+    client.async(() -&gt; {
+        Response r = new Request("GET", "https://example.com/data.json").fetch();
+        if (r == null || r.code() &lt; 200 || r.code() &gt;= 300) return;
+        Json j = r.json();
+        client.print(j.toString());
+    });
+}
+</code></pre></div>
+</section><section class="doc-block level-2" data-section="script-checklist"><h2 data-title="Script checklist" id="script-checklist"><span>Script checklist</span><a aria-label="Link to this section" class="anchor" href="#script-checklist">#</a></h2>
+<p>Before generating a Raven bS script:</p>
+<ul>
+<li>no package/wrapper class was added;</li>
+<li>every callback matches an exact documented signature;</li>
+<li>cancellable callbacks return primitive <code>boolean</code> on every path;</li>
+<li><code>getRotations()</code> uses exact spelling and returns <code>Float[]</code>;</li>
+<li>own settings are addressed with <code>scriptName</code>;</li>
+<li>nullable world/player/item/raycast/network results are guarded;</li>
+<li>client-side mobs are removed individually when owned by one script;</li>
+<li><code>world.setTitleText(...)</code> is used, not <code>world.displayTitleText(...)</code>;</li>
+<li><code>gl.bindTexture(String)</code> is treated as <code>void</code>;</li>
+<li>theme names use exact enum constants;</li>
+<li>raw GL state is balanced/restored;</li>
+<li>packet enum strings use exact native enum names;</li>
+<li>no method is inferred from another Raven version or vanilla Minecraft.</li>
+</ul>
+</section>
+<div class="footer">Raven bS Scripting API · Source-verified beta reference</div>
+</article></main>
+</div>
+<script>(() => {
+  const root = document.documentElement;
+  const search = document.getElementById('search');
+  const searchState = document.getElementById('searchState');
+  const blocks = [...document.querySelectorAll('.doc-block')];
+  const navLinks = [...document.querySelectorAll('.nav-link')];
+  const sidebar = document.getElementById('sidebar');
+  const menuBtn = document.getElementById('menuBtn');
+  const themeBtn = document.getElementById('themeBtn');
+  const savedTheme = localStorage.getItem('rbs-doc-theme');
+  if (savedTheme) root.dataset.theme = savedTheme;
+
+  function syncThemeLabel() {
+    const light = root.dataset.theme === 'light';
+    themeBtn.textContent = light ? 'Dark' : 'Light';
+    themeBtn.setAttribute('aria-label', light ? 'Use dark theme' : 'Use light theme');
+  }
+  syncThemeLabel();
+
+  themeBtn.addEventListener('click', () => {
+    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    root.dataset.theme = next;
+    localStorage.setItem('rbs-doc-theme', next);
+    syncThemeLabel();
+  });
+
+  function setMenu(open) {
+    sidebar.classList.toggle('open', open);
+    menuBtn.setAttribute('aria-expanded', String(open));
+  }
+  menuBtn.setAttribute('aria-controls','sidebar');
+  menuBtn.setAttribute('aria-expanded','false');
+  menuBtn.addEventListener('click', () => setMenu(!sidebar.classList.contains('open')));
+  navLinks.forEach(a => a.addEventListener('click', () => setMenu(false)));
+
+  document.querySelectorAll('.copy-code').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const code = btn.closest('.code-wrap').querySelector('code').innerText;
+      const old = btn.textContent;
+      try { await navigator.clipboard.writeText(code); }
+      catch {
+        const ta = document.createElement('textarea');
+        ta.value = code; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+      }
+      btn.textContent = 'Copied';
+      setTimeout(() => btn.textContent = old, 1000);
+    });
+  });
+
+  function runSearch() {
+    const raw = search.value.trim();
+    const q = raw.toLowerCase();
+    let visible = 0;
+    blocks.forEach(block => {
+      const hit = !q || block.innerText.toLowerCase().includes(q);
+      block.classList.toggle('filtered-out', !hit);
+      if (hit) visible++;
+    });
+    navLinks.forEach(link => {
+      const target = document.querySelector(`[data-section="${CSS.escape(link.dataset.target)}"]`);
+      link.classList.toggle('search-hidden', Boolean(q && target && target.classList.contains('filtered-out')));
+    });
+    if (q) {
+      searchState.classList.add('show');
+      searchState.textContent = `${visible} matching section${visible === 1 ? '' : 's'} · ${raw}`;
+    } else {
+      searchState.classList.remove('show');
+      searchState.textContent = '';
+    }
+  }
+  search.addEventListener('input', runSearch);
+
+  document.addEventListener('keydown', e => {
+    const tag = document.activeElement?.tagName || '';
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault(); search.focus(); search.select();
+    } else if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(tag)) {
+      e.preventDefault(); search.focus();
+    } else if (e.key === 'Escape') {
+      if (document.activeElement === search && search.value) { search.value=''; runSearch(); }
+      else if (document.activeElement === search) search.blur();
+      setMenu(false);
+    }
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    const visible = entries.filter(e => e.isIntersecting).sort((a,b) => a.boundingClientRect.top-b.boundingClientRect.top)[0];
+    if (!visible) return;
+    const id = visible.target.dataset.section;
+    navLinks.forEach(a => a.classList.toggle('active', a.dataset.target === id));
+  }, {rootMargin:'-70px 0px -72% 0px', threshold:0});
+  blocks.forEach(b => observer.observe(b));
+})();</script>
+</body>
+</html>
